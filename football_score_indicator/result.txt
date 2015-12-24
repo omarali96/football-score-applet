@@ -1,0 +1,136 @@
+Use 'footballscore_indicator' to run the applet
+8
+in update labels
+6
+Primera División de Costa Rica (1 Game)
+Alajuelense v Saprissa1:00 AM UTC Thu, Dec 24 
+Italian Serie B (9 Games)
+Novara v Cesena7:30 PM UTC 
+Belgian Jupiler League (1 Game)
+KSC Lokeren v Anderlecht7:30 PM UTC 
+About
+Quit
+----------------------------------------
+
+
+('current count : ', 0)
+previous lenth is greatet thab the current count therefore we update
+in match update
+('current count : ', 1)
+('previousLength : ', 6)
+('updating : ', 'Alajuelense v Saprissa1:00 AM UTC Thu, Dec 24 ')
+('current count : ', 2)
+previous lenth is greatet thab the current count therefore we update
+in match update
+('current count : ', 3)
+('previousLength : ', 6)
+('updating : ', 'Novara v Cesena7:30 PM UTC ')
+in match update
+('current count : ', 4)
+('previousLength : ', 6)
+('updating : ', 'Belgian Jupiler League (1 Game)')
+in match update
+('current count : ', 5)
+('previousLength : ', 6)
+('updating : ', 'KSC Lokeren v Anderlecht7:30 PM UTC ')
+in match update
+('current count : ', 6)
+('previousLength : ', 6)
+('inserting : ', 'US Pescara v Modena7:30 PM UTC ')
+in match update
+('current count : ', 7)
+('previousLength : ', 6)
+('inserting : ', 'Crotone v Trapani7:30 PM UTC ')
+in match update
+('current count : ', 8)
+('previousLength : ', 6)
+('inserting : ', 'Ternana v Lanciano7:30 PM UTC ')
+in match update
+('current count : ', 9)
+('previousLength : ', 6)
+('inserting : ', 'Vicenza v Latina7:30 PM UTC ')
+in match update
+('current count : ', 10)
+('previousLength : ', 6)
+('inserting : ', 'Spezia v Como7:30 PM UTC ')
+in match update
+('current count : ', 11)
+('previousLength : ', 6)
+('inserting : ', 'Novara v Cesena7:30 PM UTC ')
+('current count : ', 12)
+in league previous length is leass than current count therefore insert league
+in match update
+('current count : ', 13)
+('previousLength : ', 6)
+('inserting : ', 'KSC Lokeren v Anderlecht7:30 PM UTC ')
+in update labels
+14
+Primera División de Costa Rica (1 Game)updated
+Alajuelense v Saprissa1:00 AM UTC Thu, Dec 24 
+Italian Serie B (9 Games)updated
+Novara v Cesena7:30 PM UTC 
+Belgian Jupiler League (1 Game)
+KSC Lokeren v Anderlecht7:30 PM UTC 
+US Pescara v Modena7:30 PM UTC 
+Crotone v Trapani7:30 PM UTC 
+Ternana v Lanciano7:30 PM UTC 
+Vicenza v Latina7:30 PM UTC 
+Spezia v Como7:30 PM UTC 
+Novara v Cesena7:30 PM UTC 
+Belgian Jupiler League (1 Game)inserted
+KSC Lokeren v Anderlecht7:30 PM UTC 
+About
+Quit
+----------------------------------------
+
+
+('current count : ', 0)
+previous lenth is greatet thab the current count therefore we update
+in match update
+('current count : ', 1)
+('previousLength : ', 14)
+('updating : ', 'Alajuelense v Saprissa1:00 AM UTC Thu, Dec 24 ')
+('current count : ', 2)
+previous lenth is greatet thab the current count therefore we update
+in match update
+('current count : ', 3)
+('previousLength : ', 14)
+('updating : ', 'Novara v Cesena7:30 PM UTC ')
+in match update
+('current count : ', 4)
+('previousLength : ', 14)
+('updating : ', 'Belgian Jupiler League (1 Game)')
+in match update
+('current count : ', 5)
+('previousLength : ', 14)
+('updating : ', 'KSC Lokeren v Anderlecht7:30 PM UTC ')
+in match update
+('current count : ', 6)
+('previousLength : ', 14)
+('updating : ', 'US Pescara v Modena7:30 PM UTC ')
+in match update
+('current count : ', 7)
+('previousLength : ', 14)
+('updating : ', 'Crotone v Trapani7:30 PM UTC ')
+in match update
+('current count : ', 8)
+('previousLength : ', 14)
+('updating : ', 'Ternana v Lanciano7:30 PM UTC ')
+in match update
+('current count : ', 9)
+('previousLength : ', 14)
+('updating : ', 'Vicenza v Latina7:30 PM UTC ')
+in match update
+('current count : ', 10)
+('previousLength : ', 14)
+('updating : ', 'Spezia v Como7:30 PM UTC ')
+in match update
+('current count : ', 11)
+('previousLength : ', 14)
+('updating : ', 'Novara v Cesena7:30 PM UTC ')
+('current count : ', 12)
+previous lenth is greatet thab the current count therefore we update
+in match update
+('current count : ', 13)
+('previousLength : ', 14)
+('updating : ', 'KSC Lokeren v Anderlecht7:30 PM UTC ')
