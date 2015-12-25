@@ -28,7 +28,7 @@ class scores_ind:
     self.indicatorLabelId = None
     self.indicator.set_label("Loading","")
     self.menu = Gtk.Menu().new()
-
+    self.indicatorLabelId = None
     self.indicator.set_menu(self.menu)
 
     self.matchMenu = []
@@ -90,14 +90,15 @@ class scores_ind:
 
 
   def updateDataAfterInterval(self):
-  	self.updateLabels()
-  	start = time.time()
-  	while True:
-  		duration = time.time() - start
-  		if duration >= REFRESH_INTERVAL:
-  			print ("in updateDataAfterInterval in if")
-  			self.updateLabels()
-  			start= time.time()
+    start = time.time()
+
+    while True:
+      duration = time.time() - start
+      if duration >= REFRESH_INTERVAL:
+        print ("in updateDataAfterInterval in if")
+        self.updateLabels()
+        start= time.time()
+        
 
   def updateLabels(self):
     print "--------***********--------"
@@ -158,7 +159,8 @@ class scores_ind:
         else:
           if self.indicatorLabelId == matchInfo['id']:
             self.setIndicatorLabel(matchInfo['score_summary'] + "\t\t" + matchInfo['status'])
-            
+
+
         print ("In match update")
         print ("current count : ", currentCount)
         print ("previousLength : ", previousLength)
@@ -239,7 +241,7 @@ class scores_ind:
     return matchItem
 
 
-  def OpenInBrowser(self,matchItem):
+  def OpenInBrowser(self,widget,matchItem):
     webbrowser.open(matchItem['url'])
 
 def run():
