@@ -3,6 +3,7 @@ from __future__ import print_function
 import sys
 import requests
 from bs4 import BeautifulSoup
+import collections
 
 BASE_URL = "http://espnfc.us"
 SUMMARY_URL = BASE_URL + "/scores/xhr?=1"
@@ -37,13 +38,9 @@ class ESPNFootballScrap:
 			else:
 				return self.matches_list
 		self.match = {}
-		self.matches_list = []
+		
 		soup = BeautifulSoup(summary['content']['html'])
-		#print soup.prettify()
-
-
-		#print "----"*40
-
+		
 
 
 		soup = soup.findAll("div", id="score-leagues");
@@ -163,8 +160,9 @@ class ESPNFootballScrap:
 
 
 
-
-		return dictionaryOfLeagues
+		print (type(dictionaryOfLeagues) )
+		print ("returned")
+		return dict(dictionaryOfLeagues)
 			
 if __name__ == "__main__":
     print ("Use 'football_indicator' to run the applet")
