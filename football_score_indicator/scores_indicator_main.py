@@ -12,6 +12,7 @@ import sys
 import webbrowser
 
 from espnfootball_scrap import ESPNFootballScrap
+from football_query_xml_parser import queryXMLParsedResults
 
 #time ot between each fetch
 REFRESH_INTERVAL = 10
@@ -21,10 +22,10 @@ class scores_ind:
   def __init__(self):
 
     self.indicator = appindicator.Indicator.new("football-score-indicator",
-      "football.png",appindicator.IndicatorCategory.APPLICATION_STATUS)
-
+      path.abspath(path.dirname(__file__))+"/football.png",appindicator.IndicatorCategory.APPLICATION_STATUS)
+    # path.abspath(path.dirname(__file__))+"/football.png"
     self.indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
-    self.indicator.set_icon("./football.png")
+    self.indicator.set_icon(path.abspath(path.dirname(__file__))+"/football.png")
 
     self.scrapObject = ESPNFootballScrap()
     self.indicatorLabelId = None
@@ -52,6 +53,7 @@ class scores_ind:
     Gtk.main()
 
   def quit(self,widget):
+    print "--------------------------------->    quit clicked"
     Gtk.main_quit()
 
   def addQuitAbout(self):
@@ -115,13 +117,13 @@ class scores_ind:
     
     leauges = self.scrapObject.get_matches_summary()
     if type(leauges) is list:
-        print "\nit is list retruning....\n"
+        #print "\nit is list retruning....\n"
         return
     
 
 
-    print leauges
-    print type(leauges)
+    #print leauges
+    #print type(leauges)
     previousLength = len(self.menu)-2
     
     #print previousLength
@@ -161,14 +163,14 @@ class scores_ind:
             self.matchMenu.append(leauge)
             currentCount += 1
 
-            print "leauge inserted"
+            #print "leauge inserted"
 
           else:
             """
             print ("In leauge, previous count is morethan the current count , hence we update")
             """
 
-            self.menu.get_children()[currentCount].set_label(leauge + " updated "+ str(currentCount +1))
+            self.menu.get_children()[currentCount].set_label(leauge.upper() )
 
             """
             print("update operation :", leauge, (currentCount))
@@ -190,20 +192,20 @@ class scores_ind:
             self.matchMenu[currentCount]=  leauges[leauge]
             currentCount += 1
 
-            print "leauge updated"
+            #print "leauge updated"
 
           for matches in leauges[leauge]:
             matchInfo = leauges[leauge][matches]
 
 
-            print self.indicatorLabelId
+            #print self.indicatorLabelId
             if(self.indicatorLabelId is None):
               
               print "it is none "
               
               self.indicatorLabelId = matchInfo['id']
             if self.indicatorLabelId == matchInfo['id']:
-                print "setting indicator icon"
+                #print "setting indicator icon"
                 if ":" in matchInfo['status']:
                     #self.setIndicatorLabel(matchInfo['score_summary'] + " starts at " + matchInfo['status'])
                     
@@ -230,7 +232,7 @@ class scores_ind:
               self.menu.insert(matchItem['gtkSummary'],currentCount)
               matchItem['gtkSummary'].show()
 
-              print ("matchi item inserted")
+              #print ("matchi item inserted")
             else:
               widget = self.menu.get_children()[currentCount]
               
@@ -248,7 +250,7 @@ class scores_ind:
                 matchItem = self.createMatchItem(matchInfo,widget)
                 self.matchMenu[currentCount] = matchItem
 
-                print ("matchitem was not dicationary updated")
+                #print ("matchitem was not dicationary updated")
               
               #print ("we update a match item")
             
@@ -290,11 +292,11 @@ class scores_ind:
       if ":" in matchInfo['status']:
         matchItem['gtkSummary'].set_label(matchInfo['score_summary'] + " Starts at " + matchInfo['status'])    
       else:
-            matchItem['gtkSummary'].set_label(matchInfo['score_summary'] + "\n " + matchInfo['status'])    
+        matchItem['gtkSummary'].set_label(matchInfo['score_summary'] + "\n " + matchInfo['status'])    
 
     else:
       matchItem = {
-        "gtkSummary": Gtk.MenuItem.new_with_label(matchInfo['score_summary'] + "\n\t\t\t" + matchInfo['status']),
+        "gtkSummary": Gtk.ImageMenuItem.new_with_label(matchInfo['score_summary'] + "\t\t\t" + matchInfo['status']),
         "gtkSubMenu": Gtk.Menu.new(),
         "gtkSetAslabel": Gtk.MenuItem("Set as Label"),
         "id": matchInfo["id"],
@@ -354,16 +356,51 @@ class scores_ind:
     if ":" in matchInfo['status']:
       widget['gtkSummary'].set_label(matchInfo['score_summary'] + " starts at " + matchInfo['status'])
     else:
-        widget['gtkSummary'].set_label(matchInfo['score_summary'] + "  " + matchInfo['status'])
-
+      widget['gtkSummary'].set_label(matchInfo['score_summary'] + "  " + matchInfo['status'])
+      print 'LIVE' in matchInfo['status']
+      if 'LIVE' in matchInfo['status']:
+        pass
+        #widget['gtkSummary'].set_image(Gtk.Image(path.abspath(path.dirname(__file__))+"/football.png"))
+        #widget['gtkSummary'].set_always_show_image(True)
+    widget['gtkSubMenuScoreLabel'].set_label(matchInfo['score_summary'])
+    widget['gtkStatus'].set_label(matchInfo['status'])
+    widget['gtkStatus'].set_sensitive(False)
     widget['gtkSetAslabel'].set_label("Set as Label ")
     widget['id'] = matchInfo['id']
     widget['status'] = matchInfo['status']
+    #print matchInfo['status']
     widget['extraInfo'] = matchInfo['extra_info']
+    #print matchInfo['extra_info']
     widget['url'] = matchInfo['url']
     widget['leauge'] = matchInfo['leauge']
-    print ("matchitem is dictionary updated")
+
+    #print ("matchitem is dictionary updated")
+    thread = threading.Thread(target=self.setSubMenuLabels, args= (matchInfo['id'],widget))
+    thread.start()
+    thread.join()
     
+  def getQuery(self,id):
+    query =     "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20xml%20where%20url%3D%22http%3A%2F%2Fwww.espnfc.com%2Fgamepackage10%2Fdata%2Fgamecast%3FgameId%3D"
+    query +=     id
+    query +=    "%26langId%3D0%26snap%3D0%22"
+    return query    
+
+  def setSubMenuLabels(self,id,widget):
+    self.getQuery(id)
+    
+    goals = queryXMLParsedResults(self.getQuery(id))
+    if not goals:
+      print "goals are not available"
+      widget['gtkGoalData'].set_label("No Goals Yet")
+      return
+    else:
+      print "goals available"
+      str = ""
+      for i in goals:
+        str += i.replace("<b>","").replace("</b>","").replace("<br>","") + "\n"
+        print str
+      widget['gtkGoalData'].set_label(str)
+
 
 def run():
   myIndicator = scores_ind()
