@@ -54,6 +54,7 @@ class scores_ind:
 
   def quit(self,widget):
     print "--------------------------------->    quit clicked"
+    sys.exit(1)
     Gtk.main_quit()
 
   def addQuitAbout(self):
@@ -357,11 +358,13 @@ class scores_ind:
       widget['gtkSummary'].set_label(matchInfo['score_summary'] + " starts at " + matchInfo['status'])
     else:
       widget['gtkSummary'].set_label(matchInfo['score_summary'] + "  " + matchInfo['status'])
-      print 'LIVE' in matchInfo['status']
+      #print 'LIVE' in matchInfo['status']
       if 'LIVE' in matchInfo['status']:
         pass
-        #widget['gtkSummary'].set_image(Gtk.Image(path.abspath(path.dirname(__file__))+"/football.png"))
-        #widget['gtkSummary'].set_always_show_image(True)
+        image = Gtk.Image()
+        image.set_from_file(path.abspath(path.dirname(__file__))+"/football.png")
+        widget['gtkSummary'].set_image(image)
+        widget['gtkSummary'].set_always_show_image(True)
     widget['gtkSubMenuScoreLabel'].set_label(matchInfo['score_summary'])
     widget['gtkStatus'].set_label(matchInfo['status'])
     widget['gtkStatus'].set_sensitive(False)
@@ -375,9 +378,15 @@ class scores_ind:
     widget['leauge'] = matchInfo['leauge']
 
     #print ("matchitem is dictionary updated")
-    thread = threading.Thread(target=self.setSubMenuLabels, args= (matchInfo['id'],widget))
-    thread.start()
-    thread.join()
+
+    if( ":" not in matchInfo['status']):
+
+      thread = threading.Thread(target=self.setSubMenuLabels, args= (matchInfo['id'],widget))
+      thread.start()
+      thread.join()
+          
+
+    #leading to blocking of main and gtk target-action pattter thread.join()
     
   def getQuery(self,id):
     query =     "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20xml%20where%20url%3D%22http%3A%2F%2Fwww.espnfc.com%2Fgamepackage10%2Fdata%2Fgamecast%3FgameId%3D"
@@ -390,7 +399,7 @@ class scores_ind:
     
     goals = queryXMLParsedResults(self.getQuery(id))
     if not goals:
-      print "goals are not available"
+      #print "goals are not available"
       widget['gtkGoalData'].set_label("No Goals Yet")
       return
     else:
@@ -398,7 +407,7 @@ class scores_ind:
       str = ""
       for i in goals:
         str += i.replace("<b>","").replace("</b>","").replace("<br>","") + "\n"
-        print str
+        #print str
       widget['gtkGoalData'].set_label(str)
 
 
