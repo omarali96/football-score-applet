@@ -98,33 +98,35 @@ class scores_ind:
     print "============================================================================================"
 
 
-  def showClicked(self,widget,matchItem):
+  def showClicked_cb(self,widget,matchItem):
+    if matchItem is None:
+        print "showClicked_cb: early exit"
+        return
     self.indicatorLabelId = matchItem['id']
     print "show clicked id is  :   ---   ",
     print matchItem['id']
-    GObject.idle_add(self.setIndicatorLabel,matchItem['gtkSummary'].get_label())
-    #self.setIndicatorLabel(matchItem['gtkSummary'].get_label())
+
+    # NOTE: `idle_add` is not required here as we are in callback and
+    # therefore can modify Gtk data structures
+    # NOTE: this function seems to be causing crash
+    # take a good look at the args passed to it
+    self.setIndicatorLabel(matchItem['gtkSummary'].get_label())
+
+
 
 
   def updateDataAfterInterval(self):
-    start = time.time()
-
     while True:
         start = time.time()
         self.updateLabels()
-        while Gtk.events_pending():
-          Gtk.main_iteration()
+        # while Gtk.events_pending():
+        #   Gtk.main_iteration()
 
 
         #self.setSubMenuData()
         duration = time.time() - start
-        #if duration < REFRESH_INTERVAL:
-            #time.sleep(REFRESH_INTERVAL-duration)
-        while duration < REFRESH_INTERVAL:
-          duration = time.time() - start
-
-
-  
+        if duration < REFRESH_INTERVAL:
+            time.sleep(REFRESH_INTERVAL-duration)
 
   def updateLabels(self):
 
@@ -144,11 +146,11 @@ class scores_ind:
       newLeaugeItem.set_sensitive(False)
       if currentCount >= previousLength:
         GObject.idle_add(self.insertMenuItem,newLeaugeItem,currentCount)
-        
+
         newLeaugeItem.show()
 
         self.matchMenu.append(leauge)
-        
+
 
       else:
 
@@ -162,7 +164,7 @@ class scores_ind:
 
         else:
 
-          
+
           #print "updating -------------------------------",
 
           #print self.menu.get_children()[currentCount].get_label()
@@ -217,81 +219,29 @@ class scores_ind:
 
         currentCount += 1
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   def createMatchItem(self,matchInfo, widget = None):
 
     if widget:
       matchItem = {
 
-        "gtkSummary": widget,
-        "gtkSubMenu": Gtk.Menu.new(),
-        "gtkSetAslabel": Gtk.MenuItem("Set as Label"),
-        "id": matchInfo["id"],
-        "status": matchInfo['status'],
-        "extraInfo": matchInfo['extra_info'],
-        "url": matchInfo['url'],
-        "OpenInBrowser": Gtk.MenuItem.new_with_label("Open in Browser"),
-        "leauge": matchInfo["leauge"],
-        "gtkSeperator1": Gtk.SeparatorMenuItem().new(),
-        "gtkSeperator2": Gtk.SeparatorMenuItem().new(),
-        "gtkSeperator3": Gtk.SeparatorMenuItem().new(),
+        "gtkSummary":       widget,
+        "gtkSubMenu":       Gtk.Menu.new(),
+        "gtkSetAslabel":    Gtk.MenuItem("Set as Label"),
+        "gtkOpenInBrowser": Gtk.MenuItem.new_with_label("Open in Browser"),
+        "gtkSeperator1":    Gtk.SeparatorMenuItem().new(),
+        "gtkSeperator2":    Gtk.SeparatorMenuItem().new(),
+        "gtkSeperator3":    Gtk.SeparatorMenuItem().new(),
 
-
-
-
-        "gtkGoalHeading": Gtk.MenuItem("Goals"),
-        "gtkGoalData": Gtk.MenuItem("Loading..."),
-        "gtkStatus": Gtk.MenuItem("Loading..."),
+        "gtkGoalHeading":       Gtk.MenuItem("Goals"),
+        "gtkGoalData":          Gtk.MenuItem("Loading..."),
+        "gtkStatus":            Gtk.MenuItem("Loading..."),
         "gtkSubMenuScoreLabel": Gtk.MenuItem("Loading"),
+
+        "id":        matchInfo["id"],
+        "leauge":    matchInfo["leauge"],
+        "status":    matchInfo['status'],
+        "extraInfo": matchInfo['extra_info'],
+        "url":       matchInfo['url'],
 
       }
       if ":" in matchInfo['status']:
@@ -302,25 +252,22 @@ class scores_ind:
         GObject.idle_add(self.setMenuLabel,matchItem['gtkSummary'],matchInfo['score_summary'] + "\n " + matchInfo['status'])
     else:
       matchItem = {
-        "gtkSummary": Gtk.ImageMenuItem.new_with_label(matchInfo['score_summary'] + "\t\t\t" + matchInfo['status']),
-        "gtkSubMenu": Gtk.Menu.new(),
-        "gtkSetAslabel": Gtk.MenuItem("Set as Label"),
-        "id": matchInfo["id"],
-        "status": matchInfo['status'],
-        "extraInfo": matchInfo['extra_info'],
-        "url": matchInfo['url'],
-        "OpenInBrowser": Gtk.MenuItem.new_with_label("Open in Browser"),
-        "leauge": matchInfo["leauge"],
-        "gtkSeperator1": Gtk.SeparatorMenuItem().new(),
-        "gtkSeperator2": Gtk.SeparatorMenuItem().new(),
-        "gtkSeperator3": Gtk.SeparatorMenuItem().new(),
+        "gtkSummary":                Gtk.ImageMenuItem.new_with_label(matchInfo['score_summary'] + "\t\t\t" + matchInfo['status']),
+        "gtkSubMenu":                Gtk.Menu.new(),
+        "gtkSetAslabel":             Gtk.MenuItem("Set as Label"),
+        "id":                        matchInfo["id"],
+        "status":                    matchInfo['status'],
+        "extraInfo":                 matchInfo['extra_info'],
+        "url":                       matchInfo['url'],
+        "gtkOpenInBrowser":          Gtk.MenuItem.new_with_label("Open in Browser"),
+        "leauge":                    matchInfo["leauge"],
+        "gtkSeperator1":             Gtk.SeparatorMenuItem().new(),
+        "gtkSeperator2":             Gtk.SeparatorMenuItem().new(),
+        "gtkSeperator3":             Gtk.SeparatorMenuItem().new(),
 
-
-
-
-        "gtkGoalHeading": Gtk.MenuItem("Goals"),
-        "gtkGoalData": Gtk.MenuItem("Loading..."),
-        "gtkStatus": Gtk.MenuItem("Loading..."),
+        "gtkGoalHeading":       Gtk.MenuItem("Goals"),
+        "gtkGoalData":          Gtk.MenuItem("Loading..."),
+        "gtkStatus":            Gtk.MenuItem("Loading..."),
         "gtkSubMenuScoreLabel": Gtk.MenuItem("Loading"),
 
       }
@@ -331,8 +278,8 @@ class scores_ind:
         #matchItem['gtkSummary'].set_label(matchInfo['score_summary'] + "\n " + matchInfo['status'])
         GObject.idle_add(self.setMenuLabel,matchItem['gtkSummary'],matchInfo['score_summary'] + "\n " + matchInfo['status'])
 
-    matchItem['gtkSetAslabel'].connect("activate",self.showClicked,matchItem)
-    matchItem['OpenInBrowser'].connect("activate",self.OpenInBrowser,matchItem)
+    matchItem['gtkSetAslabel'].connect("activate",self.showClicked_cb,matchItem)
+    matchItem['gtkOpenInBrowser'].connect("activate",self.OpenInBrowser_cb,matchItem)
     matchItem['gtkSubMenu'].append(matchItem['gtkSetAslabel'])
     matchItem['gtkSubMenu'].append(matchItem['gtkSeperator1'])
     matchItem['gtkSubMenu'].append(matchItem['gtkSubMenuScoreLabel'])
@@ -342,9 +289,9 @@ class scores_ind:
     matchItem['gtkSubMenu'].append(matchItem['gtkGoalData'])
     matchItem['gtkSubMenu'].append(matchItem['gtkSeperator3'])
 
-    matchItem['gtkSubMenu'].append(matchItem['OpenInBrowser'])
+    matchItem['gtkSubMenu'].append(matchItem['gtkOpenInBrowser'])
     matchItem['gtkSummary'].set_submenu(matchItem['gtkSubMenu'])
-    matchItem['OpenInBrowser'].show()
+    matchItem['gtkOpenInBrowser'].show()
     matchItem['gtkSummary'].show()
     matchItem['gtkSetAslabel'].show()
     matchItem['gtkSeperator1'].show()
@@ -357,7 +304,7 @@ class scores_ind:
     return matchItem
 
 
-  def OpenInBrowser(self,widget,matchItem):
+  def OpenInBrowser_cb(self,widget,matchItem):
     webbrowser.open(matchItem['url'])
 
 
@@ -412,7 +359,7 @@ class scores_ind:
 
     #print ("matchitem is dictionary updated")
 
-    
+
 
     #leading to blocking of main and gtk target-action pattter thread.join()
 
