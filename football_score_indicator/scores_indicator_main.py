@@ -117,7 +117,7 @@ class scores_ind:
         start= time.time()
         
 
-  def updateLabels(self):
+  def updateLabel(self):
     #print "--------***********--------"
     
     leauges = self.scrapObject.get_matches_summary()
@@ -185,15 +185,22 @@ class scores_ind:
 
         if self.menu.get_children()[currentCount].get_submenu():
           print "here"
-          self.menu.remove(self.menu.get_children()[currentCount])
-          print "removing"
+          
+          print "removing -----------------------  ",
+          print self.menu.get_children()[currentCount].get_label
+          s
+          GObject.idle_add(self.removeMenuItem,self.menu.get_children()[currentCount])
           newGtkItem = Gtk.MenuItem(leauge)
           newGtkItem.show()
-          self.menu.insert(newGtkItem,currentCount) 
+          GObject.idle_add(self.insertMenuItem,newGtkItem,currentCount)
         else:
           print "here in else"
-          self.menu.get_children()[currentCount].set_label(leauge)
-          pass
+          print "currentCount --------------------- ",
+          print currentCount
+
+          print "updating ------------------------- ",
+          print self.menu.get_children()[currentCount].get_label()
+          GObject.idle_add(self.setMenuLabel,self.menu.get_children()[currentCount],leauge)
 
         """
         print currentCount
@@ -215,71 +222,172 @@ class scores_ind:
       
         #print matchInfo['score_summary']
         if(self.indicatorLabelId is None):
-          
-          #print "it is none "
-          
           self.indicatorLabelId = matchInfo['id']
+
+
         if self.indicatorLabelId == matchInfo['id']:
-            #print "setting indicator icon"
+
             if ":" in matchInfo['status']:
-                #self.setIndicatorLabel(matchInfo['score_summary'] + " starts at " + matchInfo['status'])
-                
                 GObject.idle_add(self.setIndicatorLabel,matchInfo['score_summary'] + " starts at " + matchInfo['status'])
             
             else:
                 
-                #self.setIndicatorLabel(matchInfo['score_summary'] + "  " + matchInfo['status'])
-                
                 GObject.idle_add(self.setIndicatorLabel, matchInfo['score_summary'] + "  " + matchInfo['status'])
-
-        """
-        print ("In match update")
-        print ("current count : ", currentCount)
-        print ("previousLength : ", previousLength)
-        """
 
         if(previousLength <= currentCount ):
           
-          #print ("we insert a ,match item ")
-          
           matchItem = self.createMatchItem(matchInfo)
           self.matchMenu.append(matchItem)
-          self.menu.insert(matchItem['gtkSummary'],currentCount)
+          print "error in creation"
+          GObject.idle_add(self.insertMenuItem,matchItem['gtkSummary'],currentCount)
           matchItem['gtkSummary'].show()
 
-          #print ("matchi item inserted")
         else:
           widget = self.menu.get_children()[currentCount]
-          
-          #matchItem = self.createMatchItem(matchInfo,widget)
-          #print type(self.matchMenu[currentCount]) is dict
-          
+          print "error in updation ============================================"
           if type(self.matchMenu[currentCount]) is dict:
-            
-            #print "\n it is a dictionaru"
-            #GObject.idle_add(self.updateMenu,self.matchMenu[currentCount],matchInfo)
-            
-
+            print "it is a dict ======================================="
             self.updateMenu(self.matchMenu[currentCount],matchInfo)
           
 
           else:
-            
-            #print "it is not a dictionary"
-            
+                        
             matchItem = self.createMatchItem(matchInfo,widget)
             self.matchMenu[currentCount] = matchItem
-
-            #print ("matchitem was not dicationary updated")
-          
-          #print ("we update a match item")
         
         currentCount+=1
-        #wprint self.matchMenu
 
     while(currentCount < previousLength):
       self.menu.remove(self.menu.get_children()[currentCount])
       currentCount = len(self.menu)
+
+
+
+
+  def updateLabels(self):
+    leauges=self.scrapObject.get_matches_summary()
+    if type(leauges) is list:
+      return
+
+
+    previousLength = len(self.menu) - 2
+
+    currentCount = 0
+
+    for leauge in leauges.keys():
+
+      newLeaugeItem = Gtk.MenuItem(leauge)
+      newLeaugeItem.set_sensitive(False)
+      if currentCount >= previousLength:
+        GObject.idle_add(self.insertMenuItem,newLeaugeItem,currentCount)
+        newLeaugeItem.show()
+
+        self.matchMenu.append(leauge)
+        
+
+      else:
+
+        if self.menu.get_children()[currentCount].get_submenu():
+          print "removing ------------------------------",
+          print self.menu.get_children()[currentCount].get_label()
+
+          GObject.idle_add(self.removeMenuItem,self.menu.get_children()[currentCount],leauge)
+          GObject.idle_add(self.insertMenuItem,newLeaugeItem,currentCount)
+          newLeaugeItem.show()
+
+        else:
+
+          print "here in does --------- already is a dict threrfore kkupdatiin"
+          print "updating -------------------------------",
+
+          print self.menu.get_children()[currentCount].get_label()
+
+          GObject.idle_add(self.setMenuLabel,self.menu.get_children()[currentCount],leauge)
+        self.matchMenu[currentCount] = leauge
+
+      currentCount += 1
+
+
+
+
+
+
+      for matches in leauges[leauge]:
+        matchInfo = leauges[leauge][matches]
+
+        if self.indicator is None:
+          self.indicatorLabelId = matchInfo['id']
+
+        if self.indicatorLabelId == matchInfo['id']:
+          if ":" in matchInfo['status']:
+            GObject.idle_add(self.setIndicatorLabel,matchInfo['score_summary'] + " starts at " + matchInfo['status'])
+          else:
+            GObject.idle_add(self.setIndicatorLabel, matchInfo['score_summary'] + "  " + matchInfo['status'])
+
+
+        if previousLength <= currentCount:
+
+          matchItem = self.createMatchItem(matchInfo)
+          self.matchMenu.append(matchItem)
+
+          GObject.idle_add(self.insertMenuItem,matchItem['gtkSummary'],currentCount)
+          matchItem['gtkSummary'].show()
+
+        else:
+
+          widget = self.menu.get_children()[currentCount]
+
+          if type(self.matchMenu[currentCount]) is dict:
+            self.updateMenu(self.matchMenu[currentCount],matchInfo)
+          else:
+            matchItem = self.createMatchItem(matchInfo,widget)
+            self.matchMenu[currentCount] = matchItem
+
+        currentCount += 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
