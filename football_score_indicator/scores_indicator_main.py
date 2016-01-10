@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 
 from gi.repository import Gtk,GObject,GdkPixbuf
 from gi.repository import AppIndicator3 as appindicator
@@ -37,12 +36,12 @@ class scores_ind:
     self.matchMenu = []
     self.addQuitAbout()
 
-    while Gtk.events_pending():
-      Gtk.main_iteration()
-    self.updateLabels()
-    while Gtk.events_pending():
-      Gtk.main_iteration()
-    
+    # while Gtk.events_pending():
+    #   Gtk.main_iteration()
+    # self.updateLabels()
+    # while Gtk.events_pending():
+    #   Gtk.main_iteration()
+
     thread = threading.Thread(target = self.updateDataAfterInterval)
     thread.daemon = True
     thread.start()
@@ -54,7 +53,7 @@ class scores_ind:
 
   def quit(self,widget):
     print "--------------------------------->    quit clicked"
-    sys.exit(1)
+    # sys.exit(1)
     Gtk.main_quit()
 
   def addQuitAbout(self):
@@ -67,6 +66,7 @@ class scores_ind:
     quit_item = Gtk.MenuItem("Quit")
     quit_item.connect("activate",self.quit)
     quit_item.show()
+
     self.menu.append(quit_item)
 
   def about(self,widget):
@@ -101,39 +101,36 @@ class scores_ind:
 
 
   def updateDataAfterInterval(self):
-    start = time.time()
-
     while True:
-      duration = time.time() - start
-      if duration >= REFRESH_INTERVAL:
-        
-        #print ("in updateDataAfterInterval in if")
-        
+        start = time.time()
+        duration = time.time() - start
         self.updateLabels()
-        start= time.time()
-        
+          #print ("in updateDataAfterInterval in if")
+        if duration < REFRESH_INTERVAL:
+            time.sleep(REFRESH_INTERVAL-duration)
+
 
   def updateLabels(self):
     #print "--------***********--------"
-    
+
     leauges = self.scrapObject.get_matches_summary()
     if type(leauges) is list:
         #print "\nit is list retruning....\n"
         return
-    
+
 
 
     #print leauges
     #print type(leauges)
     previousLength = len(self.menu)-2
-    
+
     #print previousLength
-    
+
     """
     for i in self.menu:
       print i.get_label()
 
-    print 
+    print
     print "-"*40
     print
     """
@@ -148,7 +145,7 @@ class scores_ind:
           """
 
           if previousLength <= currentCount:
-            
+
             """
             print("In leauge, previous count ins less than current count , hence we insert")
             """
@@ -182,7 +179,7 @@ class scores_ind:
 
             if self.menu.get_children()[currentCount].get_submenu():
               self.menu.get_children[currentCount].remove_submenu()
-            
+
             """
             print currentCount
             """
@@ -201,21 +198,21 @@ class scores_ind:
 
             #print self.indicatorLabelId
             if(self.indicatorLabelId is None):
-              
+
               print "it is none "
-              
+
               self.indicatorLabelId = matchInfo['id']
             if self.indicatorLabelId == matchInfo['id']:
                 #print "setting indicator icon"
                 if ":" in matchInfo['status']:
                     #self.setIndicatorLabel(matchInfo['score_summary'] + " starts at " + matchInfo['status'])
-                    
+
                     GObject.idle_add(self.setIndicatorLabel,matchInfo['score_summary'] + " starts at " + matchInfo['status'])
-                
+
                 else:
-                    
+
                     #self.setIndicatorLabel(matchInfo['score_summary'] + "  " + matchInfo['status'])
-                    
+
                     GObject.idle_add(self.setIndicatorLabel, matchInfo['score_summary'] + "  " + matchInfo['status'])
 
             """
@@ -225,9 +222,9 @@ class scores_ind:
             """
 
             if(previousLength <= currentCount):
-              
+
               #print ("we insert a ,match item ")
-              
+
               matchItem = self.createMatchItem(matchInfo)
               self.matchMenu.append(matchItem)
               self.menu.insert(matchItem['gtkSummary'],currentCount)
@@ -236,28 +233,28 @@ class scores_ind:
               #print ("matchi item inserted")
             else:
               widget = self.menu.get_children()[currentCount]
-              
+
               #matchItem = self.createMatchItem(matchInfo,widget)
               #print type(self.matchMenu[currentCount]) is dict
-              
+
               if type(self.matchMenu[currentCount]) is dict:
-                
+
                 #print "\n it is a dictionaru"
                 GObject.idle_add(self.updateMenu,self.matchMenu[currentCount],matchInfo)
               else:
-                
+
                 #print "it is not a dictionary"
-                
+
                 matchItem = self.createMatchItem(matchInfo,widget)
                 self.matchMenu[currentCount] = matchItem
 
                 #print ("matchitem was not dicationary updated")
-              
+
               #print ("we update a match item")
-            
+
             currentCount+=1
     except e:
-        
+
         print e
 
 
@@ -280,9 +277,9 @@ class scores_ind:
         "gtkSeperator1": Gtk.SeparatorMenuItem().new(),
         "gtkSeperator2": Gtk.SeparatorMenuItem().new(),
         "gtkSeperator3": Gtk.SeparatorMenuItem().new(),
-        
 
-        
+
+
 
         "gtkGoalHeading": Gtk.MenuItem("Goals"),
         "gtkGoalData": Gtk.MenuItem("Loading..."),
@@ -291,9 +288,9 @@ class scores_ind:
 
       }
       if ":" in matchInfo['status']:
-        matchItem['gtkSummary'].set_label(matchInfo['score_summary'] + " Starts at " + matchInfo['status'])    
+        matchItem['gtkSummary'].set_label(matchInfo['score_summary'] + " Starts at " + matchInfo['status'])
       else:
-        matchItem['gtkSummary'].set_label(matchInfo['score_summary'] + "\n " + matchInfo['status'])    
+        matchItem['gtkSummary'].set_label(matchInfo['score_summary'] + "\n " + matchInfo['status'])
 
     else:
       matchItem = {
@@ -309,9 +306,9 @@ class scores_ind:
         "gtkSeperator1": Gtk.SeparatorMenuItem().new(),
         "gtkSeperator2": Gtk.SeparatorMenuItem().new(),
         "gtkSeperator3": Gtk.SeparatorMenuItem().new(),
-        
 
-        
+
+
 
         "gtkGoalHeading": Gtk.MenuItem("Goals"),
         "gtkGoalData": Gtk.MenuItem("Loading..."),
@@ -320,10 +317,10 @@ class scores_ind:
 
       }
       if ":" in matchInfo['status']:
-        matchItem['gtkSummary'].set_label(matchInfo['score_summary'] + " Starts at " + matchInfo['status'])    
+        matchItem['gtkSummary'].set_label(matchInfo['score_summary'] + " Starts at " + matchInfo['status'])
       else:
-        matchItem['gtkSummary'].set_label(matchInfo['score_summary'] + "\n " + matchInfo['status'])    
- 
+        matchItem['gtkSummary'].set_label(matchInfo['score_summary'] + "\n " + matchInfo['status'])
+
     matchItem['gtkSetAslabel'].connect("activate",self.showClicked,matchItem)
     matchItem['OpenInBrowser'].connect("activate",self.OpenInBrowser,matchItem)
     matchItem['gtkSubMenu'].append(matchItem['gtkSetAslabel'])
@@ -384,19 +381,19 @@ class scores_ind:
       thread = threading.Thread(target=self.setSubMenuLabels, args= (matchInfo['id'],widget))
       thread.start()
       thread.join()
-          
+
 
     #leading to blocking of main and gtk target-action pattter thread.join()
-    
+
   def getQuery(self,id):
     query =     "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20xml%20where%20url%3D%22http%3A%2F%2Fwww.espnfc.com%2Fgamepackage10%2Fdata%2Fgamecast%3FgameId%3D"
     query +=     id
     query +=    "%26langId%3D0%26snap%3D0%22"
-    return query    
+    return query
 
   def setSubMenuLabels(self,id,widget):
     self.getQuery(id)
-    
+
     goals = queryXMLParsedResults(self.getQuery(id))
     if not goals:
       #print "goals are not available"
