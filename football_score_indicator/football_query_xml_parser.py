@@ -65,5 +65,5 @@ def queryXMLParsedResults(query):
 			#print data.nodeName + " : ",
 			if data.nodeName == 'result':
 				list.append(data.childNodes[0].nodeValue)
-	print list
+	#print list
 	return list
