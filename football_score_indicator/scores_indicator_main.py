@@ -3,12 +3,10 @@
 from gi.repository import Gtk,GObject,GdkPixbuf
 from gi.repository import AppIndicator3 as appindicator
 
-import pdb
 from os import path
 import threading
 import time
 import signal
-import sys
 import webbrowser
 
 from espnfootball_scrap import ESPNFootballScrap
@@ -42,8 +40,8 @@ class scores_ind:
     self.updateLabels()
     while Gtk.events_pending():
       Gtk.main_iteration()
-    
-    
+
+
 
 
   def main(self):
@@ -109,14 +107,11 @@ class scores_ind:
 
     while True:
         start = time.time()
-       
-		self.updateLabels()
-		self.setSubMenuData()
-	
-		duration = time.time() - start
+        self.updateLabels()
+        self.setSubMenuData()
+        duration = time.time() - start
         if duration < REFRESH_INTERVAL:
             time.sleep(REFRESH_INTERVAL-duration)
-
 
   def updateLabels(self):
     #print "--------***********--------"
@@ -152,7 +147,7 @@ class scores_ind:
       """
       #print leauge
       if previousLength <= currentCount:
-        
+
         """
         print("In leauge, previous count ins less than current count , hence we insert")
         """
@@ -190,7 +185,7 @@ class scores_ind:
           print "removing"
           newGtkItem = Gtk.MenuItem(leauge)
           newGtkItem.show()
-          self.menu.insert(newGtkItem,currentCount) 
+          self.menu.insert(newGtkItem,currentCount)
         else:
           print "here in else"
           self.menu.get_children()[currentCount].set_label(leauge)
@@ -213,24 +208,24 @@ class scores_ind:
 
 
         #print self.indicatorLabelId
-      
+
         #print matchInfo['score_summary']
         if(self.indicatorLabelId is None):
-          
+
           #print "it is none "
-          
+
           self.indicatorLabelId = matchInfo['id']
         if self.indicatorLabelId == matchInfo['id']:
             #print "setting indicator icon"
             if ":" in matchInfo['status']:
                 #self.setIndicatorLabel(matchInfo['score_summary'] + " starts at " + matchInfo['status'])
-                
+
                 GObject.idle_add(self.setIndicatorLabel,matchInfo['score_summary'] + " starts at " + matchInfo['status'])
-            
+
             else:
-                
+
                 #self.setIndicatorLabel(matchInfo['score_summary'] + "  " + matchInfo['status'])
-                
+
                 GObject.idle_add(self.setIndicatorLabel, matchInfo['score_summary'] + "  " + matchInfo['status'])
 
         """
@@ -240,9 +235,9 @@ class scores_ind:
         """
 
         if(previousLength <= currentCount ):
-          
+
           #print ("we insert a ,match item ")
-          
+
           matchItem = self.createMatchItem(matchInfo)
           self.matchMenu.append(matchItem)
           self.menu.insert(matchItem['gtkSummary'],currentCount)
@@ -251,30 +246,30 @@ class scores_ind:
           #print ("matchi item inserted")
         else:
           widget = self.menu.get_children()[currentCount]
-          
+
           #matchItem = self.createMatchItem(matchInfo,widget)
           #print type(self.matchMenu[currentCount]) is dict
-          
+
           if type(self.matchMenu[currentCount]) is dict:
-            
+
             #print "\n it is a dictionaru"
             #GObject.idle_add(self.updateMenu,self.matchMenu[currentCount],matchInfo)
-            
+
 
             self.updateMenu(self.matchMenu[currentCount],matchInfo)
-          
+
 
           else:
-            
+
             #print "it is not a dictionary"
-            
+
             matchItem = self.createMatchItem(matchInfo,widget)
             self.matchMenu[currentCount] = matchItem
 
             #print ("matchitem was not dicationary updated")
-          
+
           #print ("we update a match item")
-        
+
         currentCount+=1
         #wprint self.matchMenu
 
@@ -305,9 +300,9 @@ class scores_ind:
         "gtkSeperator1": Gtk.SeparatorMenuItem().new(),
         "gtkSeperator2": Gtk.SeparatorMenuItem().new(),
         "gtkSeperator3": Gtk.SeparatorMenuItem().new(),
-        
 
-        
+
+
 
         "gtkGoalHeading": Gtk.MenuItem("Goals"),
         "gtkGoalData": Gtk.MenuItem("Loading..."),
@@ -316,10 +311,10 @@ class scores_ind:
 
       }
       if ":" in matchInfo['status']:
-        #matchItem['gtkSummary'].set_label(matchInfo['score_summary'] + " Starts at " + matchInfo['status'])    
+        #matchItem['gtkSummary'].set_label(matchInfo['score_summary'] + " Starts at " + matchInfo['status'])
         GObject.idle_add(self.setMenuLabel,matchItem['gtkSummary'],matchInfo['score_summary'] + " Starts at " + matchInfo['status'])
       else:
-        #matchItem['gtkSummary'].set_label(matchInfo['score_summary'] + "\n " + matchInfo['status'])    
+        #matchItem['gtkSummary'].set_label(matchInfo['score_summary'] + "\n " + matchInfo['status'])
         GObject.idle_add(self.setMenuLabel,matchItem['gtkSummary'],matchInfo['score_summary'] + "\n " + matchInfo['status'])
     else:
       matchItem = {
@@ -335,9 +330,9 @@ class scores_ind:
         "gtkSeperator1": Gtk.SeparatorMenuItem().new(),
         "gtkSeperator2": Gtk.SeparatorMenuItem().new(),
         "gtkSeperator3": Gtk.SeparatorMenuItem().new(),
-        
 
-        
+
+
 
         "gtkGoalHeading": Gtk.MenuItem("Goals"),
         "gtkGoalData": Gtk.MenuItem("Loading..."),
@@ -346,12 +341,12 @@ class scores_ind:
 
       }
       if ":" in matchInfo['status']:
-        #matchItem['gtkSummary'].set_label(matchInfo['score_summary'] + " Starts at " + matchInfo['status'])    
+        #matchItem['gtkSummary'].set_label(matchInfo['score_summary'] + " Starts at " + matchInfo['status'])
         GObject.idle_add(self.setMenuLabel,matchItem['gtkSummary'],matchInfo['score_summary'] + " Starts at " + matchInfo['status'])
       else:
-        #matchItem['gtkSummary'].set_label(matchInfo['score_summary'] + "\n " + matchInfo['status'])    
+        #matchItem['gtkSummary'].set_label(matchInfo['score_summary'] + "\n " + matchInfo['status'])
         GObject.idle_add(self.setMenuLabel,matchItem['gtkSummary'],matchInfo['score_summary'] + "\n " + matchInfo['status'])
-    
+
     matchItem['gtkSetAslabel'].connect("activate",self.showClicked,matchItem)
     matchItem['OpenInBrowser'].connect("activate",self.OpenInBrowser,matchItem)
     matchItem['gtkSubMenu'].append(matchItem['gtkSetAslabel'])
@@ -391,7 +386,7 @@ class scores_ind:
       #widget['gtkSummary'].set_label(matchInfo['score_summary'] + "  " + matchInfo['status'])
       GObject.idle_add(self.setMenuLabel,widget['gtkSummary'],matchInfo['score_summary'] + " starts at " + matchInfo['status'])
       #print 'LIVE' in matchInfo['status']
-      
+
 
 
       if 'LIVE' in matchInfo['status']:
@@ -400,19 +395,19 @@ class scores_ind:
         image.set_from_file(path.abspath(path.dirname(__file__))+"/football.png")
         widget['gtkSummary'].set_image(image)
         widget['gtkSummary'].set_always_show_image(True)
-    
+
 
 
 
     #widget['gtkSubMenuScoreLabel'].set_label(matchInfo['score_summary'])
     GObject.idle_add(self.setMenuLabel,widget['gtkSubMenuScoreLabel'],matchInfo['score_summary'] )
-    
+
     #widget['gtkStatus'].set_label(matchInfo['status'])
     GObject.idle_add(self.setMenuLabel,widget['gtkStatus'],matchInfo['status'])
     widget['gtkStatus'].set_sensitive(False)
-    
+
     #widget['gtkSetAslabel'].set_label("Set as Label ")
-    
+
     GObject.idle_add(self.setMenuLabel,widget['gtkSetAslabel'],"Set as Label")
 
 
@@ -434,11 +429,11 @@ class scores_ind:
       thread = threading.Thread(target=self.setSubMenuLabels, args= (matchInfo['id'],widget))
       thread.start()
       thread.join()
-          
+
 
     #leading to blocking of main and gtk target-action pattter thread.join()
-    
-  
+
+
 
 
 
@@ -446,16 +441,16 @@ class scores_ind:
     query =     "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20xml%20where%20url%3D%22http%3A%2F%2Fwww.espnfc.com%2Fgamepackage10%2Fdata%2Fgamecast%3FgameId%3D"
     query +=     id
     query +=    "%26langId%3D0%26snap%3D0%22"
-    return query    
+    return query
 
-  
 
-  
+
+
 
 
   def updateSubMenuLabels(self,id,widget):
     self.getQuery(id)
-    
+
     goals = queryXMLParsedResults(self.getQuery(id))
     if not goals:
       #print "goals are not available"
@@ -469,18 +464,18 @@ class scores_ind:
         #print str
       widget.set_label(str)
 
-  
+
 
 
 
   def setSubMenuData(self):
-  
+
     for i in self.matchMenu:
       if type(i) is dict:
         if( 'LIVE' in i['gtkStatus'].get_label() ):
           print "this is live"
           thread = threading.Thread(target=self.updateSubMenuLabels,args= ( i['id'], i['gtkGoalData']) )
-    
+
 
 
 
