@@ -158,7 +158,7 @@ class scores_ind:
           #print "removing ------------------------------",
           #print self.menu.get_children()[currentCount].get_label()
 
-          GObject.idle_add(self.removeMenuItem,self.menu.get_children()[currentCount],leauge)
+          GObject.idle_add(self.removeMenuItem,self.menu.get_children()[currentCount])
           GObject.idle_add(self.insertMenuItem,newLeaugeItem,currentCount)
           newLeaugeItem.show()
 
@@ -182,7 +182,7 @@ class scores_ind:
       for matches in leauges[leauge]:
         matchInfo = leauges[leauge][matches]
 
-        if self.indicator is None:
+        if self.indicatorLabelId is None:
           self.indicatorLabelId = matchInfo['id']
 
         if self.indicatorLabelId == matchInfo['id']:
@@ -212,7 +212,7 @@ class scores_ind:
 
 
           else:
-            matchItem = self.createMatchItem(matchInfo,widget)
+            matchItem = Gobject.idle_add(self.createMatchItem,matchInfo,widget)
             #print "updating match over leauge-----------------------",
             #print matchItem['gtkSummary'].get_label()
             self.matchMenu[currentCount] = matchItem
@@ -313,10 +313,10 @@ class scores_ind:
     #print widget.keys()
     if ":" in matchInfo['status']:
       #widget['gtkSummary'].set_label(matchInfo['score_summary'] + " starts at " + matchInfo['status'])
-      GObject.idle_add(self.setMenuLabel,widget['gtkSummary'],matchInfo['score_summary'] + " " + matchInfo['status'])
+      GObject.idle_add(self.setMenuLabel,widget['gtkSummary'],matchInfo['score_summary'] + " starts at " + matchInfo['status'])
     else:
       #widget['gtkSummary'].set_label(matchInfo['score_summary'] + "  " + matchInfo['status'])
-      GObject.idle_add(self.setMenuLabel,widget['gtkSummary'],matchInfo['score_summary'] + " starts at " + matchInfo['status'])
+      GObject.idle_add(self.setMenuLabel,widget['gtkSummary'],matchInfo['score_summary'] + " " + matchInfo['status'])
       #print 'LIVE' in matchInfo['status']
 
 
