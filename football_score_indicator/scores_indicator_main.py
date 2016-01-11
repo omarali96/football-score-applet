@@ -11,6 +11,7 @@ import webbrowser
 
 from espnfootball_scrap import ESPNFootballScrap
 from football_query_xml_parser import queryXMLParsedResults
+from Preferences import PreferencesWindow
 
 #time ot between each fetch
 REFRESH_INTERVAL = 10
@@ -33,7 +34,7 @@ class scores_ind:
     self.indicator.set_menu(self.menu)
 
     self.matchMenu = []
-    self.addQuitAbout()
+    self.addQuitAboutPreferences()
 
     while Gtk.events_pending():
       Gtk.main_iteration()
@@ -57,7 +58,12 @@ class scores_ind:
     # sys.exit(1)
     Gtk.main_quit()
 
-  def addQuitAbout(self):
+  def addQuitAboutPreferences(self):
+    preferences_item = Gtk.MenuItem('Preferences')
+    preferences_item.connect("activate",self.preferences)
+    preferences_item.show()
+    self.menu.append(preferences_item)
+
     about_item = Gtk.MenuItem("About")
     about_item.connect("activate",self.about)
     about_item.show()
@@ -79,6 +85,11 @@ class scores_ind:
     dialog.set_license_type(Gtk.License.GPL_3_0)
     dialog.run()
     dialog.destroy()
+
+  def preferences(self,widget):
+    window = PreferencesWindow()
+    window.display()
+
 
 
   def setIndicatorLabel(self,label):
@@ -136,7 +147,7 @@ class scores_ind:
       return
 
 
-    previousLength = len(self.menu) - 2
+    previousLength = len(self.menu) - 3
 
     currentCount = 0
 
