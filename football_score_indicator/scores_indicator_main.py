@@ -103,11 +103,9 @@ class scores_ind:
     self.menu.remove(widget)
 
   def setMenuLabel(self,widget,label):
-    print widget.get_label()
+    print "label is " + label
     widget.set_label(label)
-    print widget.get_label()
-    print "============================================================================================"
-
+    
 
   def showClicked_cb(self,widget,matchItem):
     if matchItem is None:
@@ -320,24 +318,26 @@ class scores_ind:
 
 
   def updateMenu(self,widget,matchInfo):
-    print widget['gtkSummary']
+    
     #print widget.keys()
     if ":" in matchInfo['status']:
       #widget['gtkSummary'].set_label(matchInfo['score_summary'] + " starts at " + matchInfo['status'])
-      GObject.idle_add(self.setMenuLabel,widget['gtkSummary'],matchInfo['score_summary'] + " starts at " + matchInfo['status'])
+      GObject.idle_add(widget['gtkSummary'].set_label,matchInfo['score_summary'] + " starts at " + matchInfo['status'])
     else:
       #widget['gtkSummary'].set_label(matchInfo['score_summary'] + "  " + matchInfo['status'])
-      GObject.idle_add(self.setMenuLabel,widget['gtkSummary'],matchInfo['score_summary'] + " " + matchInfo['status'])
+      GObject.idle_add(widget['gtkSummary'].set_label,matchInfo['score_summary'] + " " + matchInfo['status'])
+      print widget['gtkSummary'].get_label()
       #print 'LIVE' in matchInfo['status']
 
 
 
       if 'LIVE' in matchInfo['status']:
-        pass
         image = Gtk.Image()
         image.set_from_file(path.abspath(path.dirname(__file__))+"/football.png")
-        widget['gtkSummary'].set_image(image)
+        #widget['gtkSummary'].set_image(image)
+        GObject.idle_add(widget['gtkSummary'].set_image,image)
         widget['gtkSummary'].set_always_show_image(True)
+        print "---------------------------------it is live image has beed set"
       else:
         widget['gtkSummary'].set_always_show_image(False)
 
