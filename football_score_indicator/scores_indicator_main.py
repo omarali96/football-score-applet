@@ -2,6 +2,7 @@
 
 from gi.repository import Gtk,GObject,GdkPixbuf
 from gi.repository import AppIndicator3 as appindicator
+from configuration import Configurations
 
 from os import path
 import threading
@@ -20,6 +21,7 @@ class scores_ind:
 
   def __init__(self):
 
+    self.config = Configurations()
     self.indicator = appindicator.Indicator.new("football-score-indicator",
       path.abspath(path.dirname(__file__))+"/football.png",appindicator.IndicatorCategory.APPLICATION_STATUS)
     # path.abspath(path.dirname(__file__))+"/football.png"
@@ -100,7 +102,8 @@ class scores_ind:
     self.menu.insert(widget,pos)
 
   def removeMenuItem(self,widget):
-    self.menu.remove(widget)
+    self.indicator.get_menu().remove(widget)
+
 
   def setMenuLabel(self,widget,label):
     print "label is " + label
@@ -139,7 +142,8 @@ class scores_ind:
 
   def updateLabels(self):
 
-
+    settings = self.config.readConfigurations()
+    print settings
     leauges=self.scrapObject.get_matches_summary()
     if type(leauges) is list:
       return
@@ -151,37 +155,39 @@ class scores_ind:
 
     for leauge in leauges.keys():
 
-      newLeaugeItem = Gtk.MenuItem(leauge)
-      newLeaugeItem.set_sensitive(False)
-      if currentCount >= previousLength:
-        GObject.idle_add(self.insertMenuItem,newLeaugeItem,currentCount)
+      if not settings['hide_leauges']:
 
-        newLeaugeItem.show()
-
-        self.matchMenu.append(leauge)
-
-
-      else:
-
-        if self.menu.get_children()[currentCount].get_submenu():
-          #print "removing ------------------------------",
-          #print self.menu.get_children()[currentCount].get_label()
-
-          GObject.idle_add(self.removeMenuItem,self.menu.get_children()[currentCount])
+        newLeaugeItem = Gtk.MenuItem(leauge)
+        newLeaugeItem.set_sensitive(False)
+        if currentCount >= previousLength :
           GObject.idle_add(self.insertMenuItem,newLeaugeItem,currentCount)
+
           newLeaugeItem.show()
+
+          self.matchMenu.append(leauge)
+
 
         else:
 
+          if self.menu.get_children()[currentCount].get_submenu():
+            #print "removing ------------------------------",
+            #print self.menu.get_children()[currentCount].get_label()
 
-          #print "updating -------------------------------",
+            GObject.idle_add(self.removeMenuItem,self.menu.get_children()[currentCount])
+            GObject.idle_add(self.insertMenuItem,newLeaugeItem,currentCount)
+            newLeaugeItem.show()
 
-          #print self.menu.get_children()[currentCount].get_label()
+          else:
 
-          GObject.idle_add(self.setMenuLabel,self.menu.get_children()[currentCount],leauge)
-        self.matchMenu[currentCount] = leauge
 
-      currentCount += 1
+            #print "updating -------------------------------",
+
+            #print self.menu.get_children()[currentCount].get_label()
+
+            GObject.idle_add(self.setMenuLabel,self.menu.get_children()[currentCount],leauge)
+          self.matchMenu[currentCount] = leauge
+
+        currentCount += 1
 
 
 
@@ -221,16 +227,48 @@ class scores_ind:
 
 
           else:
-            matchItem = Gobject.idle_add(self.createMatchItem,matchInfo,widget)
-            #print "updating match over leauge-----------------------",
-            #print matchItem['gtkSummary'].get_label()
-            self.matchMenu[currentCount] = matchItem
+            widget.set_sensitive(True)
+            matchItem = self.createMatchItem(matchInfo,widget)
+            #print "y=type of matchitem is --------------------------------> ",
+            print type(matchItem) 
+            print matchItem
+            print matchItem['gtkSummary']
 
+            #print "------------------------------------------>>updating match over leauge",
+            print matchItem['gtkSummary'].get_label()
+            self.matchMenu[currentCount] = matchItem
+            print self.matchMenu[currentCount].keys()
         currentCount += 1
+    print self.matchMenu
+    print (len(self.matchMenu))
+
+    print "currentCount ----------------------------------------------> ", currentCount
+    print "sen(self.menu) --------------------------------------------> ",len(self.menu)
+    
+    print "\n"
+
+    """
+    check this pattter
+    """
+    while currentCount < len(self.menu) - 3:
+      
+      print "in while loop"
+      print "currentCount ----------------------------------------------> ", currentCount
+      print "sen(self.menu) --------------------------------------------> ",len(self.menu) 
+      print "match menu length -----------------------------------------> ", len(self.matchMenu)
+      GObject.idle_add(self.removeMenuItem, self.menu.get_children()[currentCount + 1])
+      #if type(self.matchMenu[-1]) is dict:
+      #  GObject.idle_add(self.removeMenuItem, self.menu.get_children()[-4])
+      #else:
+      #  GObject.idle_add(self.removeMenuItem,self.matchMenu[-1])
 
   def createMatchItem(self,matchInfo, widget = None):
 
+    matchItem = {}
+    #print "----------------------------> in create match item---------------------> ",
+    
     if widget:
+      #print widget.get_label()
       matchItem = {
 
         "gtkSummary":       widget,
@@ -253,6 +291,7 @@ class scores_ind:
         "url":       matchInfo['url'],
 
       }
+      print matchItem
       if ":" in matchInfo['status']:
         #matchItem['gtkSummary'].set_label(matchInfo['score_summary'] + " Starts at " + matchInfo['status'])
         GObject.idle_add(self.setMenuLabel,matchItem['gtkSummary'],matchInfo['score_summary'] + " Starts at " + matchInfo['status'])
@@ -310,6 +349,9 @@ class scores_ind:
     matchItem['gtkGoalData'].show()
     matchItem['gtkSubMenuScoreLabel'].show()
     matchItem['gtkStatus'].show()
+    
+    #print type(matchItem)
+
     return matchItem
 
 
