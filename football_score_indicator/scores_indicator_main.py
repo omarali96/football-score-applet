@@ -155,39 +155,39 @@ class scores_ind:
 
     for leauge in leauges.keys():
 
-      if not settings['hide_leauges']:
+    
+      newLeaugeItem = Gtk.MenuItem(leauge)
+      newLeaugeItem.set_sensitive(False)
+      if currentCount >= previousLength :
+        GObject.idle_add(self.insertMenuItem,newLeaugeItem,currentCount)
 
-        newLeaugeItem = Gtk.MenuItem(leauge)
-        newLeaugeItem.set_sensitive(False)
-        if currentCount >= previousLength :
+        newLeaugeItem.show() if not settings['hide_leauges'] else newLeaugeItem.hide()
+
+        self.matchMenu.append(leauge)
+
+
+      else:
+
+        if self.menu.get_children()[currentCount].get_submenu():
+          #print "removing ------------------------------",
+          #print self.menu.get_children()[currentCount].get_label()
+
+          GObject.idle_add(self.removeMenuItem,self.menu.get_children()[currentCount])
           GObject.idle_add(self.insertMenuItem,newLeaugeItem,currentCount)
-
-          newLeaugeItem.show()
-
-          self.matchMenu.append(leauge)
-
+          newLeaugeItem.show() if not settings['hide_leauges'] else newLeaugeItem.hide()
 
         else:
 
-          if self.menu.get_children()[currentCount].get_submenu():
-            #print "removing ------------------------------",
-            #print self.menu.get_children()[currentCount].get_label()
 
-            GObject.idle_add(self.removeMenuItem,self.menu.get_children()[currentCount])
-            GObject.idle_add(self.insertMenuItem,newLeaugeItem,currentCount)
-            newLeaugeItem.show()
+          #print "updating -------------------------------",
 
-          else:
+          #print self.menu.get_children()[currentCount].get_label()
 
+          GObject.idle_add(self.setMenuLabel,self.menu.get_children()[currentCount],leauge)
+          self.menu.get_children()[currentCount].show() if not settings['hide_leauges'] else self.menu.get_children()[currentCount].hide()
+        self.matchMenu[currentCount] = leauge
 
-            #print "updating -------------------------------",
-
-            #print self.menu.get_children()[currentCount].get_label()
-
-            GObject.idle_add(self.setMenuLabel,self.menu.get_children()[currentCount],leauge)
-          self.matchMenu[currentCount] = leauge
-
-        currentCount += 1
+      currentCount += 1
 
 
 
