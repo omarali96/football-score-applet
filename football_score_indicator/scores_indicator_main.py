@@ -238,7 +238,16 @@ class scores_ind:
             print matchItem['gtkSummary'].get_label()
             self.matchMenu[currentCount] = matchItem
             print self.matchMenu[currentCount].keys()
+        
+        if (settings['live_matches']) and 'LIVE' in self.matchMenu[currentCount]['status']:
+          self.matchMenu[currentCount]['gtkSummary'].show()
+        elif not settings['live_matches']:
+          self.matchMenu[currentCount]['gtkSummary'].show()
+        else:
+          self.matchMenu[currentCount]['gtkSummary'].hide()
         currentCount += 1
+
+
     print self.matchMenu
     print (len(self.matchMenu))
 
@@ -382,6 +391,7 @@ class scores_ind:
         print "---------------------------------it is live image has beed set"
       else:
         widget['gtkSummary'].set_always_show_image(False)
+
 
 
 
