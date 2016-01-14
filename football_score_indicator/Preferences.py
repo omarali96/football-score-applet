@@ -5,7 +5,7 @@ class PreferencesWindow(Gtk.Window):
 
     def __init__(self):
         self.config = Configurations().readConfigurations()
-        Gtk.Window.__init__(self, title="RadioButton Demo")
+        Gtk.Window.__init__(self, title="Preferencees")
         self.set_border_width(10)
         hbox = Gtk.Box(spacing=6)
         self.add(hbox)
@@ -21,7 +21,7 @@ class PreferencesWindow(Gtk.Window):
         self.button2.connect("toggled", self.on_button_toggled, "2")
         hbox.pack_start(self.button2, False, False, 0)
 
-        self.button3 = Gtk.RadioButton.new_with_mnemonic_from_widget(self.button1,"Hide Leagues")
+        self.button3 = Gtk.CheckButton("Hide Leagues")
         self.button3.set_active(self.config['hide_leauges'])
         self.button3.connect("toggled", self.on_button_toggled, "3")
         hbox.pack_start(self.button3, False, False, 0)

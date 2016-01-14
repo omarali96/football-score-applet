@@ -174,7 +174,18 @@ class scores_ind:
 
           GObject.idle_add(self.removeMenuItem,self.menu.get_children()[currentCount])
           GObject.idle_add(self.insertMenuItem,newLeaugeItem,currentCount)
-          newLeaugeItem.show() if not settings['hide_leauges'] else newLeaugeItem.hide()
+          #newLeaugeItem.show() if not settings['hide_leauges'] else newLeaugeItem.hide()
+          if not settings['hide_leauges']:
+            print "-----------------------------------------------------> ",
+            print newLeaugeItem.get_label() + "SHOW"
+
+            newLeaugeItem.show()          
+          else:
+            print "-----------------------------------------------------> ",
+            print newLeaugeItem.get_label() + "hidden"
+            newLeaugeItem.hide()
+
+
 
         else:
 
@@ -184,9 +195,17 @@ class scores_ind:
           #print self.menu.get_children()[currentCount].get_label()
 
           GObject.idle_add(self.setMenuLabel,self.menu.get_children()[currentCount],leauge)
-          self.menu.get_children()[currentCount].show() if not settings['hide_leauges'] else self.menu.get_children()[currentCount].hide()
+          #self.menu.get_children()[currentCount].show() if not settings['hide_leauges'] else self.menu.get_children()[currentCount].hide()
+          if not settings['hide_leauges']:
+            print "-----------------------------------------------------> ",
+            print self.menu.get_children()[currentCount].get_label() + " SHOW"
+            self.menu.get_children()[currentCount].show()
+          else:
+            self.menu.get_children()[currentCount].hide()
+            print "-----------------------------------------------------> ",
+            print self.menu.get_children()[currentCount].get_label() + " hidden"
         self.matchMenu[currentCount] = leauge
-
+      self.menu.queue_draw()
       currentCount += 1
 
 
@@ -230,14 +249,14 @@ class scores_ind:
             widget.set_sensitive(True)
             matchItem = self.createMatchItem(matchInfo,widget)
             #print "y=type of matchitem is --------------------------------> ",
-            print type(matchItem) 
-            print matchItem
-            print matchItem['gtkSummary']
+            #print type(matchItem) 
+            #print matchItem
+            #print matchItem['gtkSummary']
 
             #print "------------------------------------------>>updating match over leauge",
             print matchItem['gtkSummary'].get_label()
             self.matchMenu[currentCount] = matchItem
-            print self.matchMenu[currentCount].keys()
+            #print self.matchMenu[currentCount].keys()
         
         if (settings['live_matches']) and 'LIVE' in self.matchMenu[currentCount]['status']:
           self.matchMenu[currentCount]['gtkSummary'].show()
@@ -248,8 +267,8 @@ class scores_ind:
         currentCount += 1
 
 
-    print self.matchMenu
-    print (len(self.matchMenu))
+    #print self.matchMenu
+    #print (len(self.matchMenu))
 
     print "currentCount ----------------------------------------------> ", currentCount
     print "sen(self.menu) --------------------------------------------> ",len(self.menu)
