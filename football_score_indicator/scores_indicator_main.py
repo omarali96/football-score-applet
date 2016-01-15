@@ -161,8 +161,7 @@ class scores_ind:
       if currentCount >= previousLength :
         GObject.idle_add(self.insertMenuItem,newLeaugeItem,currentCount)
 
-        newLeaugeItem.show() if not settings['hide_leauges'] else newLeaugeItem.hide()
-
+        GObject.idle_add(newLeaugeItem.show) if not settings['hide_leauges'] else GObject.idle_add(newLeaugeItem.hide)
         self.matchMenu.append(leauge)
 
 
@@ -179,11 +178,11 @@ class scores_ind:
             print "-----------------------------------------------------> ",
             print newLeaugeItem.get_label() + "SHOW"
 
-            newLeaugeItem.show()          
+            GObject.idle_add(newLeaugeItem.show)          
           else:
             print "-----------------------------------------------------> ",
             print newLeaugeItem.get_label() + "hidden"
-            newLeaugeItem.hide()
+            GObject.idle_add(newLeaugeItem.hide)
 
 
 
@@ -199,9 +198,9 @@ class scores_ind:
           if not settings['hide_leauges']:
             print "-----------------------------------------------------> ",
             print self.menu.get_children()[currentCount].get_label() + " SHOW"
-            self.menu.get_children()[currentCount].show()
+            GObject.idle_add(self.menu.get_children()[currentCount].show)
           else:
-            self.menu.get_children()[currentCount].hide()
+            GObject.idle_add(self.menu.get_children()[currentCount].hide)
             print "-----------------------------------------------------> ",
             print self.menu.get_children()[currentCount].get_label() + " hidden"
         self.matchMenu[currentCount] = leauge
@@ -233,7 +232,8 @@ class scores_ind:
           #print "insertin match ---------------- ",
           #print matchItem['gtkSummary']
           GObject.idle_add(self.insertMenuItem,matchItem['gtkSummary'],currentCount)
-          matchItem['gtkSummary'].show()
+          
+          GObject.idle_add(matchItem['gtkSummary'].show)
 
         else:
 
@@ -259,11 +259,11 @@ class scores_ind:
             #print self.matchMenu[currentCount].keys()
         
         if (settings['live_matches']) and 'LIVE' in self.matchMenu[currentCount]['status']:
-          self.matchMenu[currentCount]['gtkSummary'].show()
+          GObject.idle_add(self.matchMenu[currentCount]['gtkSummary'].show)
         elif not settings['live_matches']:
-          self.matchMenu[currentCount]['gtkSummary'].show()
+          GObject.idle_add(self.matchMenu[currentCount]['gtkSummary'].show)
         else:
-          self.matchMenu[currentCount]['gtkSummary'].hide()
+          GObject.idle_add(self.matchMenu[currentCount]['gtkSummary'].hide)
         currentCount += 1
 
 
