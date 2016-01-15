@@ -50,7 +50,7 @@ class scores_ind:
   def main(self):
     signal.signal(signal.SIGINT,signal.SIG_DFL)
     thread = threading.Thread(target = self.updateDataAfterInterval)
-    print thread.name
+    #print thread.name
     thread.daemon = True
     thread.start()
     Gtk.main()
@@ -106,17 +106,17 @@ class scores_ind:
 
 
   def setMenuLabel(self,widget,label):
-    print "label is " + label
+    #print "label is " + label
     widget.set_label(label)
     
 
   def showClicked_cb(self,widget,matchItem):
     if matchItem is None:
-        print "showClicked_cb: early exit"
+        #print "showClicked_cb: early exit"
         return
     self.indicatorLabelId = matchItem['id']
-    print "show clicked id is  :   ---   ",
-    print matchItem['id']
+    #print "show clicked id is  :   ---   ",
+    #print matchItem['id']
 
     # NOTE: `idle_add` is not required here as we are in callback and
     # therefore can modify Gtk data structures
@@ -135,7 +135,7 @@ class scores_ind:
         #   Gtk.main_iteration()
 
 
-        #self.setSubMenuData()
+        self.setSubMenuData()
         duration = time.time() - start
         if duration < REFRESH_INTERVAL:
             time.sleep(REFRESH_INTERVAL-duration)
@@ -143,7 +143,7 @@ class scores_ind:
   def updateLabels(self):
 
     settings = self.config.readConfigurations()
-    print settings
+    #print settings
     leauges=self.scrapObject.get_matches_summary()
     if type(leauges) is list:
       return
@@ -175,13 +175,13 @@ class scores_ind:
           GObject.idle_add(self.insertMenuItem,newLeaugeItem,currentCount)
           #newLeaugeItem.show() if not settings['hide_leauges'] else newLeaugeItem.hide()
           if not settings['hide_leauges']:
-            print "-----------------------------------------------------> ",
-            print newLeaugeItem.get_label() + "SHOW"
+            #print "-----------------------------------------------------> ",
+            #print newLeaugeItem.get_label() + "SHOW"
 
             GObject.idle_add(newLeaugeItem.show)          
           else:
-            print "-----------------------------------------------------> ",
-            print newLeaugeItem.get_label() + "hidden"
+            #print "-----------------------------------------------------> ",
+            #print newLeaugeItem.get_label() + "hidden"
             GObject.idle_add(newLeaugeItem.hide)
 
 
@@ -196,13 +196,13 @@ class scores_ind:
           GObject.idle_add(self.setMenuLabel,self.menu.get_children()[currentCount],leauge)
           #self.menu.get_children()[currentCount].show() if not settings['hide_leauges'] else self.menu.get_children()[currentCount].hide()
           if not settings['hide_leauges']:
-            print "-----------------------------------------------------> ",
-            print self.menu.get_children()[currentCount].get_label() + " SHOW"
+            #print "-----------------------------------------------------> ",
+            #print self.menu.get_children()[currentCount].get_label() + " SHOW"
             GObject.idle_add(self.menu.get_children()[currentCount].show)
           else:
             GObject.idle_add(self.menu.get_children()[currentCount].hide)
-            print "-----------------------------------------------------> ",
-            print self.menu.get_children()[currentCount].get_label() + " hidden"
+            #print "-----------------------------------------------------> ",
+            #print self.menu.get_children()[currentCount].get_label() + " hidden"
         self.matchMenu[currentCount] = leauge
       self.menu.queue_draw()
       currentCount += 1
@@ -396,7 +396,7 @@ class scores_ind:
     else:
       #widget['gtkSummary'].set_label(matchInfo['score_summary'] + "  " + matchInfo['status'])
       GObject.idle_add(widget['gtkSummary'].set_label,matchInfo['score_summary'] + " " + matchInfo['status'])
-      print widget['gtkSummary'].get_label()
+      #print widget['gtkSummary'].get_label()
       #print 'LIVE' in matchInfo['status']
 
 
@@ -461,12 +461,14 @@ class scores_ind:
 
 
   def updateSubMenuLabels(self,id,widget):
-    self.getQuery(id)
+    #print "\n\n\n" + self.getQuery(id)
+    #print "=======================>==================================================================================> going into the updateSubMenuLabels"
 
     goals = queryXMLParsedResults(self.getQuery(id))
     if not goals:
       #print "goals are not available"
-      widget.set_label("No Goals Yet")
+      #widget.set_label("No Goals Yet")
+      GObject.idle_add(widget.set_label,"No Goals Yet...")
       return
     else:
       print "goals available"
@@ -474,19 +476,23 @@ class scores_ind:
       for i in goals:
         str += i.replace("<b>","").replace("</b>","").replace("<br>","") + "\n"
         #print str
-      widget.set_label(str)
+      #widget.set_label(str)
+      GObject.idle_add(widget.set_label, str)
 
 
 
 
 
   def setSubMenuData(self):
+    print "going in to setSubmenuData"
 
     for i in self.matchMenu:
       if type(i) is dict:
+        #print "-----------------------------------------------------------> "+ i['gtkStatus'].get_label()
         if( 'LIVE' in i['gtkStatus'].get_label() ):
-          print "this is live"
+          #print "------------------------------------------------------------------------------------------------------->  this is live"
           thread = threading.Thread(target=self.updateSubMenuLabels,args= ( i['id'], i['gtkGoalData']) )
+          thread.start()
 
 
 
