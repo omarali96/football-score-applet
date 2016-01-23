@@ -10,7 +10,7 @@ import time
 import signal
 import webbrowser
 
-from espnfootball_scrap import ESPNFootballScrap
+from espnfootball_scrap import get_matches_summary
 from football_query_xml_parser import queryXMLParsedResults
 from Preferences import PreferencesWindow
 
@@ -29,7 +29,6 @@ class FootballIndicator:
     self.indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
     self.indicator.set_icon(ICON)
 
-    self.scrapObject = ESPNFootballScrap()
     self.indicatorLabelId = None
     self.indicator.set_label("No Live Matches","")
 
@@ -85,8 +84,8 @@ class FootballIndicator:
     # TODO: use caching
     settings = self.config.readConfigurations()
     #print settings
-    leauges=self.scrapObject.get_matches_summary()
-    if type(leauges) is list:
+    leauges = get_matches_summary()
+    if leauges is None:
       return
 
     currentCount = 0
