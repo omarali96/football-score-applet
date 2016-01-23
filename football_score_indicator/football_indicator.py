@@ -14,38 +14,32 @@ from espnfootball_scrap import ESPNFootballScrap
 from football_query_xml_parser import queryXMLParsedResults
 from Preferences import PreferencesWindow
 
+ICON = path.abspath(path.dirname(__file__))+"/football.png"
+VERSION_STR="0.1"
 #time ot between each fetch
 REFRESH_INTERVAL = 10
 
-class scores_ind:
-
+class FootballIndicator:
   def __init__(self):
-
     self.config = Configurations()
     self.indicator = appindicator.Indicator.new("football-score-indicator",
-      path.abspath(path.dirname(__file__))+"/football.png",appindicator.IndicatorCategory.APPLICATION_STATUS)
+                    ICON,
+                    appindicator.IndicatorCategory.APPLICATION_STATUS)
     # path.abspath(path.dirname(__file__))+"/football.png"
     self.indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
-    self.indicator.set_icon(path.abspath(path.dirname(__file__))+"/football.png")
+    self.indicator.set_icon(ICON)
 
     self.scrapObject = ESPNFootballScrap()
     self.indicatorLabelId = None
     self.indicator.set_label("No Live Matches","")
+
     self.menu = Gtk.Menu().new()
-    self.indicatorLabelId = None
     self.indicator.set_menu(self.menu)
 
     self.matchMenu = []
-    self.addQuitAboutPreferences()
+    addQuitAboutPreferences(self.menu)
 
-    while Gtk.events_pending():
-      Gtk.main_iteration()
-    self.updateLabels()
-    while Gtk.events_pending():
-      Gtk.main_iteration()
-
-
-
+    self.dataLock = threading.Semaphore()
 
   def main(self):
     signal.signal(signal.SIGINT,signal.SIG_DFL)
@@ -55,65 +49,16 @@ class scores_ind:
     thread.start()
     Gtk.main()
 
-  def quit(self,widget):
-    print "--------------------------------->    quit clicked"
-    # sys.exit(1)
-    Gtk.main_quit()
-
-  def addQuitAboutPreferences(self):
-    preferences_item = Gtk.MenuItem('Preferences')
-    preferences_item.connect("activate",self.preferences)
-    preferences_item.show()
-    self.menu.append(preferences_item)
-
-    about_item = Gtk.MenuItem("About")
-    about_item.connect("activate",self.about)
-    about_item.show()
-
-    self.menu.append(about_item)
-
-    quit_item = Gtk.MenuItem("Quit")
-    quit_item.connect("activate",self.quit)
-    quit_item.show()
-
-    self.menu.append(quit_item)
-
-  def about(self,widget):
-    dialog = Gtk.AboutDialog.new()
-    dialog.set_transient_for(widget.get_parent().get_parent())
-    dialog.set_program_name("Football Score Indicator")
-    dialog.add_credit_section("Nishant Kukreja","")
-    dialog.add_credit_section("Abhishek Rose","")
-    dialog.set_license_type(Gtk.License.GPL_3_0)
-    dialog.run()
-    dialog.destroy()
-
-  def preferences(self,widget):
-    window = PreferencesWindow()
-    window.display()
-
-
-
   def setIndicatorLabel(self,label):
     self.indicator.set_label(label,"Football Score Indicator")
-
 
   def insertMenuItem(self,widget,pos):
     self.menu.insert(widget,pos)
 
   def removeMenuItem(self,widget):
-    self.indicator.get_menu().remove(widget)
+    self.menu.remove(widget)
 
-
-  def setMenuLabel(self,widget,label):
-    #print "label is " + label
-    widget.set_label(label)
-    
-
-  def showClicked_cb(self,widget,matchItem):
-    if matchItem is None:
-        #print "showClicked_cb: early exit"
-        return
+  def showClicked_cb(self, widget, matchItem):
     self.indicatorLabelId = matchItem['id']
     #print "show clicked id is  :   ---   ",
     #print matchItem['id']
@@ -124,43 +69,34 @@ class scores_ind:
     # take a good look at the args passed to it
     self.setIndicatorLabel(matchItem['gtkSummary'].get_label())
 
-
-
-
   def updateDataAfterInterval(self):
     while True:
-        start = time.time()
-        self.updateLabels()
-        # while Gtk.events_pending():
-        #   Gtk.main_iteration()
-
-
-        self.setSubMenuData()
-        duration = time.time() - start
-        if duration < REFRESH_INTERVAL:
-            time.sleep(REFRESH_INTERVAL-duration)
+      start = time.time()
+      self.dataLock.acquire()
+      self.updateLabels()
+      self.setSubMenuData()
+      self.dataLock.release()
+      duration = time.time() - start
+      if duration < REFRESH_INTERVAL:
+        # sleep if time permits
+        time.sleep(REFRESH_INTERVAL-duration)
 
   def updateLabels(self):
-
+    # TODO: use caching
     settings = self.config.readConfigurations()
     #print settings
     leauges=self.scrapObject.get_matches_summary()
     if type(leauges) is list:
       return
 
-
-    previousLength = len(self.menu) - 3
-
     currentCount = 0
-
+    previousLength = len(self.menu) - 3
     for leauge in leauges.keys():
-
-    
+      # TODO: use a creator function for creating Gtk objects
       newLeaugeItem = Gtk.MenuItem(leauge)
       newLeaugeItem.set_sensitive(False)
       if currentCount >= previousLength :
         GObject.idle_add(self.insertMenuItem,newLeaugeItem,currentCount)
-
         GObject.idle_add(newLeaugeItem.show) if not settings['hide_leauges'] else GObject.idle_add(newLeaugeItem.hide)
         self.matchMenu.append(leauge)
 
@@ -178,7 +114,7 @@ class scores_ind:
             #print "-----------------------------------------------------> ",
             #print newLeaugeItem.get_label() + "SHOW"
 
-            GObject.idle_add(newLeaugeItem.show)          
+            GObject.idle_add(newLeaugeItem.show)
           else:
             #print "-----------------------------------------------------> ",
             #print newLeaugeItem.get_label() + "hidden"
@@ -193,7 +129,7 @@ class scores_ind:
 
           #print self.menu.get_children()[currentCount].get_label()
 
-          GObject.idle_add(self.setMenuLabel,self.menu.get_children()[currentCount],leauge)
+          GObject.idle_add(setMenuLabel,self.menu.get_children()[currentCount],leauge)
           #self.menu.get_children()[currentCount].show() if not settings['hide_leauges'] else self.menu.get_children()[currentCount].hide()
           if not settings['hide_leauges']:
             #print "-----------------------------------------------------> ",
@@ -232,7 +168,7 @@ class scores_ind:
           #print "insertin match ---------------- ",
           #print matchItem['gtkSummary']
           GObject.idle_add(self.insertMenuItem,matchItem['gtkSummary'],currentCount)
-          
+
           GObject.idle_add(matchItem['gtkSummary'].show)
 
         else:
@@ -249,7 +185,7 @@ class scores_ind:
             widget.set_sensitive(True)
             matchItem = self.createMatchItem(matchInfo,widget)
             #print "y=type of matchitem is --------------------------------> ",
-            #print type(matchItem) 
+            #print type(matchItem)
             #print matchItem
             #print matchItem['gtkSummary']
 
@@ -257,7 +193,7 @@ class scores_ind:
             print matchItem['gtkSummary'].get_label()
             self.matchMenu[currentCount] = matchItem
             #print self.matchMenu[currentCount].keys()
-        
+
         if (settings['live_matches']) and 'LIVE' in self.matchMenu[currentCount]['status']:
           GObject.idle_add(self.matchMenu[currentCount]['gtkSummary'].show)
         elif not settings['live_matches']:
@@ -272,17 +208,17 @@ class scores_ind:
 
     print "currentCount ----------------------------------------------> ", currentCount
     print "sen(self.menu) --------------------------------------------> ",len(self.menu)
-    
+
     print "\n"
 
     """
     check this pattter
     """
     while currentCount < len(self.menu) - 3:
-      
+
       print "in while loop"
       print "currentCount ----------------------------------------------> ", currentCount
-      print "sen(self.menu) --------------------------------------------> ",len(self.menu) 
+      print "sen(self.menu) --------------------------------------------> ",len(self.menu)
       print "match menu length -----------------------------------------> ", len(self.matchMenu)
       GObject.idle_add(self.removeMenuItem, self.menu.get_children()[currentCount + 1])
       #if type(self.matchMenu[-1]) is dict:
@@ -294,11 +230,10 @@ class scores_ind:
 
     matchItem = {}
     #print "----------------------------> in create match item---------------------> ",
-    
+
     if widget:
       #print widget.get_label()
       matchItem = {
-
         "gtkSummary":       widget,
         "gtkSubMenu":       Gtk.Menu.new(),
         "gtkSetAslabel":    Gtk.MenuItem("Set as Label"),
@@ -322,10 +257,10 @@ class scores_ind:
       print matchItem
       if ":" in matchInfo['status']:
         #matchItem['gtkSummary'].set_label(matchInfo['score_summary'] + " Starts at " + matchInfo['status'])
-        GObject.idle_add(self.setMenuLabel,matchItem['gtkSummary'],matchInfo['score_summary'] + " Starts at " + matchInfo['status'])
+        GObject.idle_add(setMenuLabel,matchItem['gtkSummary'],matchInfo['score_summary'] + " Starts at " + matchInfo['status'])
       else:
         #matchItem['gtkSummary'].set_label(matchInfo['score_summary'] + "\n " + matchInfo['status'])
-        GObject.idle_add(self.setMenuLabel,matchItem['gtkSummary'],matchInfo['score_summary'] + "\n " + matchInfo['status'])
+        GObject.idle_add(setMenuLabel,matchItem['gtkSummary'],matchInfo['score_summary'] + "\n " + matchInfo['status'])
     else:
       matchItem = {
         "gtkSummary":                Gtk.ImageMenuItem.new_with_label(matchInfo['score_summary'] + "\t\t\t" + matchInfo['status']),
@@ -349,13 +284,13 @@ class scores_ind:
       }
       if ":" in matchInfo['status']:
         #matchItem['gtkSummary'].set_label(matchInfo['score_summary'] + " Starts at " + matchInfo['status'])
-        GObject.idle_add(self.setMenuLabel,matchItem['gtkSummary'],matchInfo['score_summary'] + " Starts at " + matchInfo['status'])
+        GObject.idle_add(setMenuLabel,matchItem['gtkSummary'],matchInfo['score_summary'] + " Starts at " + matchInfo['status'])
       else:
         #matchItem['gtkSummary'].set_label(matchInfo['score_summary'] + "\n " + matchInfo['status'])
-        GObject.idle_add(self.setMenuLabel,matchItem['gtkSummary'],matchInfo['score_summary'] + "\n " + matchInfo['status'])
+        GObject.idle_add(setMenuLabel,matchItem['gtkSummary'],matchInfo['score_summary'] + "\n " + matchInfo['status'])
 
     matchItem['gtkSetAslabel'].connect("activate",self.showClicked_cb,matchItem)
-    matchItem['gtkOpenInBrowser'].connect("activate",self.OpenInBrowser_cb,matchItem)
+    matchItem['gtkOpenInBrowser'].connect("activate",self.openInBrowser_cb,matchItem)
     matchItem['gtkSubMenu'].append(matchItem['gtkSetAslabel'])
     matchItem['gtkSubMenu'].append(matchItem['gtkSeperator1'])
     matchItem['gtkSubMenu'].append(matchItem['gtkSubMenuScoreLabel'])
@@ -377,18 +312,17 @@ class scores_ind:
     matchItem['gtkGoalData'].show()
     matchItem['gtkSubMenuScoreLabel'].show()
     matchItem['gtkStatus'].show()
-    
+
     #print type(matchItem)
 
     return matchItem
 
 
-  def OpenInBrowser_cb(self,widget,matchItem):
+  def openInBrowser_cb(self,widget,matchItem):
     webbrowser.open(matchItem['url'])
 
 
   def updateMenu(self,widget,matchInfo):
-    
     #print widget.keys()
     if ":" in matchInfo['status']:
       #widget['gtkSummary'].set_label(matchInfo['score_summary'] + " starts at " + matchInfo['status'])
@@ -417,15 +351,15 @@ class scores_ind:
 
 
     #widget['gtkSubMenuScoreLabel'].set_label(matchInfo['score_summary'])
-    GObject.idle_add(self.setMenuLabel,widget['gtkSubMenuScoreLabel'],matchInfo['score_summary'] )
+    GObject.idle_add(setMenuLabel,widget['gtkSubMenuScoreLabel'],matchInfo['score_summary'] )
 
     #widget['gtkStatus'].set_label(matchInfo['status'])
-    GObject.idle_add(self.setMenuLabel,widget['gtkStatus'],matchInfo['status'])
+    GObject.idle_add(setMenuLabel,widget['gtkStatus'],matchInfo['status'])
     widget['gtkStatus'].set_sensitive(False)
 
     #widget['gtkSetAslabel'].set_label("Set as Label ")
 
-    GObject.idle_add(self.setMenuLabel,widget['gtkSetAslabel'],"Set as Label")
+    GObject.idle_add(setMenuLabel,widget['gtkSetAslabel'],"Set as Label")
 
 
 
@@ -449,22 +383,12 @@ class scores_ind:
 
 
 
-  def getQuery(self,id):
-    query =     "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20xml%20where%20url%3D%22http%3A%2F%2Fwww.espnfc.com%2Fgamepackage10%2Fdata%2Fgamecast%3FgameId%3D"
-    query +=     id
-    query +=    "%26langId%3D0%26snap%3D0%22"
-    return query
-
-
-
-
-
 
   def updateSubMenuLabels(self,id,widget):
-    #print "\n\n\n" + self.getQuery(id)
+    #print "\n\n\n" + getQuery(id)
     #print "=======================>==================================================================================> going into the updateSubMenuLabels"
 
-    goals = queryXMLParsedResults(self.getQuery(id))
+    goals = queryXMLParsedResults(getQuery(id))
     if not goals:
       #print "goals are not available"
       #widget.set_label("No Goals Yet")
@@ -479,10 +403,6 @@ class scores_ind:
       #widget.set_label(str)
       GObject.idle_add(widget.set_label, str)
 
-
-
-
-
   def setSubMenuData(self):
     print "going in to setSubmenuData"
 
@@ -494,15 +414,58 @@ class scores_ind:
           thread = threading.Thread(target=self.updateSubMenuLabels,args= ( i['id'], i['gtkGoalData']) )
           thread.start()
 
-
-
-
-
 def run():
-  myIndicator = scores_ind()
+  myIndicator = FootballIndicator()
   myIndicator.main()
 
 if __name__ == "__main__":
   print ("use 'footnallscore_indicator to run the applet")
-  myIndicator = scores_ind()
-  myIndicator.main()
+
+# TODO: move to scraper file
+def getQuery(id):
+  return "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20xml%20where%20url%3D%22http%3A%2F%2Fwww.espnfc.com%2Fgamepackage10%2Fdata%2Fgamecast%3FgameId%3D" + \
+        id + \
+        "%26langId%3D0%26snap%3D0%22"
+
+def setMenuLabel(widget, label):
+  widget.set_label(label)
+
+def preferences(widget):
+  window = PreferencesWindow()
+  window.display()
+
+def about(widget):
+  dialog = Gtk.AboutDialog.new()
+  dialog.set_transient_for(widget.get_parent().get_parent())
+
+  dialog.set_program_name("Football Score Indicator")
+  dialog.set_authors(["Nishant Kukreja", "Abhishek"])
+  dialog.set_license_type(Gtk.License.GPL_3_0)
+  dialog.set_version(VERSION_STR)
+
+  dialog.run()
+  dialog.destroy()
+
+def quit(widget):
+  print "*** quit clicked ***"
+  Gtk.main_quit()
+
+def addQuitAboutPreferences(menu):
+  preferences_item = Gtk.MenuItem('Preferences')
+  preferences_item.connect("activate", preferences)
+  preferences_item.show()
+
+  about_item = Gtk.MenuItem("About")
+  about_item.connect("activate", about)
+  about_item.show()
+
+  quit_item = Gtk.MenuItem("Quit")
+  quit_item.connect("activate", quit)
+  quit_item.show()
+
+  menu.append(preferences_item)
+  menu.append(about_item)
+  menu.append(quit_item)
+
+
+# vim: ts=2
