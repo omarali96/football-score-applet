@@ -8,124 +8,125 @@ import collections
 BASE_URL = "http://espnfc.us"
 SUMMARY_URL = BASE_URL + "/scores/xhr?=1"
 
+
 def get_matches_summary():
-	try:
-		summary = (requests.get("http://www.espnfc.us/scores?xhr=1", timeout = 5)).json()
-	except Exception as err:
-	    print ('get_matches_summary: Exception: ', err, file=sys.stderr)
-	    return None
+    """
+    returns a dictionary of match-items with league name as key
+    the match-items themselves are dictionaries with match-id as key
 
-	soup = BeautifulSoup(summary['content']['html'], "lxml")
-	soup = soup.findAll("div", id="score-leagues");
-	#print "----------"
-	#print soup
-	#print "\n\n"*20
-	#print soup[0]
-	#print "----"
-	#print "\n"
-	#print x.get_text()#
-	dictionaryOfLeagues = {}
-	dictionaryOfMatches = {}
-	for leagues in soup:
-		#print "======================="
-		leauge = leagues.findAll("div",{"class":"score-league"})
-		#print len(leauge)
-		#name = leauge.find("h4")
-		#print name.get_text.strip()
+    returns None on error
+    """
 
-		#extracting leauges
+    try:
+        summary = (requests.get("http://www.espnfc.us/scores?xhr=1", timeout = 5)).json()
+    except Exception as err:
+        print ('get_matches_summary: Exception: ', err, file=sys.stderr)
+        return None
 
-		for match in leauge:
-			nameOfLeague = match.find("h4")
-			dictionaryOfMatches = {}
-			x = match.findAll("div",{"class":"score-group"})
+    soup = BeautifulSoup(summary['content']['html'], "lxml")
+    soup = soup.findAll("div", id="score-leagues");
+    #print "----------"
+    #print soup
+    #print "\n\n"*20
+    #print soup[0]
+    #print "----"
+    #print "\n"
+    #print x.get_text()#
+    dictionaryOfLeagues = {}
+    dictionaryOfMatches = {}
+    for leagues in soup:
+        #print "======================="
+        leauge = leagues.findAll("div",{"class":"score-league"})
+        #print len(leauge)
+        #name = leauge.find("h4")
+        #print name.get_text.strip()
 
-			#extracting all matches in the current league
+        #extracting leauges
 
-			for y in x:
-				#print "----------------"*40
-				#print y
-				#print y.get_text()
-				x = y.find("p")
-				#print "\n"
-				"""
-				if(x is not None):
-					#print x.get_text().strip()
-					#print "---"*40
-				"""
-				#print "\n\n\n\n\n\n\n\n\n\n"
+        for match in leauge:
+            nameOfLeague = match.find("h4")
+            dictionaryOfMatches = {}
+            x = match.findAll("div",{"class":"score-group"})
 
-				datas = y.findAll("div",{"class":"score-box"})
-				#print data
-				if datas:
-					for data in datas:
-						team_names = data.findAll("div",{"class":"team-name"})
-						"""
-						print "-----"
-						for team_name in team_names:
-							print team_name.get_text().strip()
-							print "\n"
-						"""
+            #extracting all matches in the current league
 
-						scores = data.findAll("div",{"class":"team-scores"})
-						score = scores[0].findAll("span")
+            for y in x:
+                #print "----------------"*40
+                #print y
+                #print y.get_text()
+                x = y.find("p")
+                #print "\n"
+                """
+                if(x is not None):
+                        #print x.get_text().strip()
+                        #print "---"*40
+                """
+                #print "\n\n\n\n\n\n\n\n\n\n"
 
-						score_summary = team_names[0].get_text().strip()
-						if score[0].get_text().strip():
-							score_summary += " : " +  score[0].get_text().strip()
+                datas = y.findAll("div",{"class":"score-box"})
+                #print data
+                if datas:
+                    for data in datas:
+                        team_names = data.findAll("div",{"class":"team-name"})
+                        """
+                        print "-----"
+                        for team_name in team_names:
+                                print team_name.get_text().strip()
+                                print "\n"
+                        """
 
-						score_summary += " v "
-						#print (score_summary)
-						score_summary += team_names[1].get_text().strip()
-						if score[1].get_text().strip():
-							score_summary += " : " +  score[1].get_text().strip()
+                        scores = data.findAll("div",{"class":"team-scores"})
+                        score = scores[0].findAll("span")
 
-	 					#print (score_summary)
-						idy = data.find("div",{"class":"score full"})
-						#print idy['data-gameid']
+                        score_summary = team_names[0].get_text().strip()
+                        if score[0].get_text().strip():
+                            score_summary += " : " +  score[0].get_text().strip()
 
+                        score_summary += " v "
+                        #print (score_summary)
+                        score_summary += team_names[1].get_text().strip()
+                        if score[1].get_text().strip():
+                            score_summary += " : " +  score[1].get_text().strip()
 
-
-
-						live = data.find("div",{"class":"game-info"})
-						status = ""
-						if live:
-							#print "===="
-							spans = live.findAll("span")
-							for span in spans:
-								status += span.get_text().strip() + " "
-
-						#print status
+                        #print (score_summary)
+                        idy = data.find("div",{"class":"score full"})
+                        #print idy['data-gameid']
 
 
-						link = data.find("a",{"class":"primary-link"})
-						#print link['href']
 
-						extra_info = data.find('div',{"class":"extra-game-info"})
-						info = ""
-						if extra_info:
 
-							spans = extra_info.findAll('span')
-							for span in spans:
-								info +=  span.get_text().strip() + " "
+                        live = data.find("div",{"class":"game-info"})
+                        status = ""
+                        if live:
+                            #print "===="
+                            spans = live.findAll("span")
+                            for span in spans:
+                                status += span.get_text().strip() + " "
 
-						match = {}
-						match['id'] = idy['data-gameid']
-						match['score_summary'] = score_summary
-						match['url'] = link['href']
-						match['status'] = status
-						match['extra_info'] = info
-						match['leauge'] = nameOfLeague.get_text().strip()
+                        #print status
 
-						dictionaryOfMatches[idy['data-gameid']] = match
 
-			dictionaryOfLeagues[nameOfLeague.get_text().strip()] = dictionaryOfMatches
+                        link = data.find("a",{"class":"primary-link"})
+                        #print link['href']
 
-		"""
-		for i in dictionaryOfLeagues:
-			print (i)
-			print (dictionaryOfLeagues[i])
+                        extra_info = data.find('div',{"class":"extra-game-info"})
+                        info = ""
+                        if extra_info:
 
-		print( dictionaryOfLeagues)
-		"""
-	return dict(dictionaryOfLeagues)
+                            spans = extra_info.findAll('span')
+                            for span in spans:
+                                info +=  span.get_text().strip() + " "
+
+                        match = {}
+                        match['id'] = idy['data-gameid']
+                        match['score_summary'] = score_summary
+                        match['url'] = link['href']
+                        match['status'] = status
+                        match['extra_info'] = info
+                        match['leauge'] = nameOfLeague.get_text().strip()
+
+                        dictionaryOfMatches[idy['data-gameid']] = match
+
+            dictionaryOfLeagues[nameOfLeague.get_text().strip()] = dictionaryOfMatches
+
+    return dictionaryOfLeagues
