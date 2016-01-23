@@ -164,9 +164,9 @@ class FootballIndicator:
             #else:
             #  GObject.idle_add(self.removeMenuItem,self.matchMenu[-1])
 
-    def createMatchItem(self,matchInfo, widget = None):
+    def createMatchItem(self,matchInfo, widget=None):
         matchItem = {
-          "gtkSummary":       Gtk.ImageMenuItem.new_with_label(matchInfo['score_summary'] + "\t\t\t" + matchInfo['status'])
+          "gtkSummary":       Gtk.ImageMenuItem.new_with_label(matchInfo['score_summary'] + "\t"*3 + matchInfo['status'])
                               if widget is None else widget,
           "gtkSubMenu":       Gtk.Menu.new(),
           "gtkSetAslabel":    Gtk.MenuItem("Set as Label"),
@@ -203,16 +203,6 @@ class FootballIndicator:
         matchItem['gtkSubMenu'].append(matchItem['gtkOpenInBrowser'])
 
         matchItem['gtkSubMenu'].show_all()
-        # matchItem['gtkOpenInBrowser'].show()
-        # matchItem['gtkSummary'].show()
-        # matchItem['gtkSetAslabel'].show()
-        # matchItem['gtkSeperator1'].show()
-        # matchItem['gtkSeperator2'].show()
-        # matchItem['gtkSeperator3'].show()
-        # matchItem['gtkGoalHeading'].show()
-        # matchItem['gtkGoalData'].show()
-        # matchItem['gtkSubMenuScoreLabel'].show()
-        # matchItem['gtkStatus'].show()
 
         return matchItem
 
@@ -220,82 +210,48 @@ class FootballIndicator:
         webbrowser.open(matchItem['url'])
 
 
-    def updateMenu(self,widget,matchInfo):
-        #print widget.keys()
+    def updateMenu(self,matchItem,matchInfo):
         if ":" in matchInfo['status']:
-            #widget['gtkSummary'].set_label(matchInfo['score_summary'] + " starts at " + matchInfo['status'])
-            GObject.idle_add(widget['gtkSummary'].set_label,matchInfo['score_summary'] + " starts at " + matchInfo['status'])
+            GObject.idle_add(matchItem['gtkSummary'].set_label,matchInfo['score_summary'] + " starts at " + matchInfo['status'])
         else:
-            #widget['gtkSummary'].set_label(matchInfo['score_summary'] + "  " + matchInfo['status'])
-            GObject.idle_add(widget['gtkSummary'].set_label,matchInfo['score_summary'] + " " + matchInfo['status'])
-            #print widget['gtkSummary'].get_label()
-            #print 'LIVE' in matchInfo['status']
-
-
-
+            GObject.idle_add(matchItem['gtkSummary'].set_label,matchInfo['score_summary'] + " " + matchInfo['status'])
             if 'LIVE' in matchInfo['status']:
                 image = Gtk.Image()
-                image.set_from_file(path.abspath(path.dirname(__file__))+"/football.png")
-                #widget['gtkSummary'].set_image(image)
-                GObject.idle_add(widget['gtkSummary'].set_image,image)
-                widget['gtkSummary'].set_always_show_image(True)
-                print "---------------------------------it is live image has beed set"
+                image.set_from_file(ICON)
+                GObject.idle_add(matchItem['gtkSummary'].set_image,image)
+                GObject.idle_add(matchItem['gtkSummary'].set_always_show_image,True)
             else:
-                widget['gtkSummary'].set_always_show_image(False)
+                GObject.idle_add(matchItem['gtkSummary'].set_always_show_image,False)
 
+        GObject.idle_add(setMenuLabel,matchItem['gtkSubMenuScoreLabel'],matchInfo['score_summary'] )
+        GObject.idle_add(setMenuLabel,matchItem['gtkStatus'],matchInfo['status'])
+        GObject.idle_add(setMenuLabel,matchItem['gtkSetAslabel'],"Set as Label")
+        matchItem['gtkStatus'].set_sensitive(False)
 
-
-
-
-
-        #widget['gtkSubMenuScoreLabel'].set_label(matchInfo['score_summary'])
-        GObject.idle_add(setMenuLabel,widget['gtkSubMenuScoreLabel'],matchInfo['score_summary'] )
-
-        #widget['gtkStatus'].set_label(matchInfo['status'])
-        GObject.idle_add(setMenuLabel,widget['gtkStatus'],matchInfo['status'])
-        widget['gtkStatus'].set_sensitive(False)
-
-        #widget['gtkSetAslabel'].set_label("Set as Label ")
-
-        GObject.idle_add(setMenuLabel,widget['gtkSetAslabel'],"Set as Label")
-
-
-
-        #print widget['gtkSummary'].get_label()
-        widget['id'] = matchInfo['id']
-        widget['status'] = matchInfo['status']
-        #print matchInfo['status']
-        #print matchInfo['status']
-        widget['extraInfo'] = matchInfo['extra_info']
-        #print matchInfo['extra_info']
-        widget['url'] = matchInfo['url']
-        widget['leauge'] = matchInfo['leauge']
-        #print ("matchitem is dictionary updated")
-        #leading to blocking of main and gtk target-action pattter thread.join()
+        matchItem['id'] = matchInfo['id']
+        matchItem['status'] = matchInfo['status']
+        matchItem['extraInfo'] = matchInfo['extra_info']
+        matchItem['url'] = matchInfo['url']
+        matchItem['leauge'] = matchInfo['leauge']
 
     def updateSubMenuLabels(self,matchId,widget):
         goals = get_match_goaldata(matchId)
         if not goals:
             #print "goals are not available"
-            #widget.set_label("No Goals Yet")
             GObject.idle_add(widget.set_label,"No Goals Yet...")
             return
         else:
-            print "goals available"
-            str = ""
+            label = ""
             for i in goals:
-                str += i.replace("<b>","").replace("</b>","").replace("<br>","") + "\n"
-                #print str
-            #widget.set_label(str)
-            GObject.idle_add(widget.set_label, str)
+                label += i.replace("<b>","").replace("</b>","").replace("<br>","") + "\n"
+            GObject.idle_add(widget.set_label, label)
 
     def setSubMenuData(self):
-        print "going in to setSubmenuData"
-
         for i in self.matchMenu:
             if type(i) is dict and 'LIVE' in i['gtkStatus'].get_label():
                 thread = threading.Thread(target=self.updateSubMenuLabels,args=(i['id'], i['gtkGoalData']))
                 thread.start()
+                # TODO: join?
 
 def run():
     myIndicator = FootballIndicator()

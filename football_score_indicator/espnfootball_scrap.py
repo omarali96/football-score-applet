@@ -6,6 +6,10 @@ from xml.dom import minidom
 
 BASE_URL = "http://espnfc.us"
 SUMMARY_URL = BASE_URL + "/scores/xhr?=1"
+getQuery = lambda matchId: "http://query.yahooapis.com/v1/public/" + \
+            "yql?q=select%20*%20from%20xml%20where%20url%3D%22http%3A%2F%2Fwww.espnfc.com%2Fgamepackage10%2Fdata%2Fgamecast%3FgameId%3D" + \
+            matchId + \
+            "%26langId%3D0%26snap%3D0%22"
 
 def get_match_goaldata(matchId):
     queryXMLParsedResults(getQuery(matchId))
@@ -16,8 +20,10 @@ def get_matches_summary():
     the match-items themselves are dictionaries with match-id as key
 
     returns None on error
+
     """
 
+    # TODO: clean-up
     try:
         summary = (requests.get("http://www.espnfc.us/scores?xhr=1", timeout = 5)).json()
     except Exception as err:
@@ -80,12 +86,6 @@ def get_matches_summary():
             dictOfLeagues[nameOfLeague.get_text().strip()] = dictOfMatches
 
     return dictOfLeagues
-
-def getQuery(matchId):
-    return "http://query.yahooapis.com/v1/public/" + \
-            "yql?q=select%20*%20from%20xml%20where%20url%3D%22http%3A%2F%2Fwww.espnfc.com%2Fgamepackage10%2Fdata%2Fgamecast%3FgameId%3D" + \
-            matchId + \
-            "%26langId%3D0%26snap%3D0%22"
 
 def queryXMLParsedResults(query):
     summary = (requests.get(query, timeout=5))
