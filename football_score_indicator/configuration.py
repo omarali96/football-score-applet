@@ -1,6 +1,5 @@
 import ConfigParser
 
-
 class Configurations:
 	def __init__(self):
 		print "Configurations initialised"

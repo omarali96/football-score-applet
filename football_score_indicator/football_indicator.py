@@ -10,8 +10,7 @@ import time
 import signal
 import webbrowser
 
-from espnfootball_scrap import get_matches_summary
-from football_query_xml_parser import queryXMLParsedResults
+from espnfootball_scrap import get_matches_summary, get_match_goaldata
 from Preferences import PreferencesWindow
 
 ICON = path.abspath(path.dirname(__file__))+"/football.png"
@@ -274,8 +273,8 @@ class FootballIndicator:
         #print ("matchitem is dictionary updated")
         #leading to blocking of main and gtk target-action pattter thread.join()
 
-    def updateSubMenuLabels(self,id,widget):
-        goals = queryXMLParsedResults(getQuery(id))
+    def updateSubMenuLabels(self,matchId,widget):
+        goals = get_match_goaldata(matchId)
         if not goals:
             #print "goals are not available"
             #widget.set_label("No Goals Yet")
@@ -306,10 +305,6 @@ if __name__ == "__main__":
     print ("use 'footnallscore_indicator to run the applet")
 
 # TODO: move to scraper file
-def getQuery(id):
-    return "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20xml%20where%20url%3D%22http%3A%2F%2Fwww.espnfc.com%2Fgamepackage10%2Fdata%2Fgamecast%3FgameId%3D" + \
-          id + \
-          "%26langId%3D0%26snap%3D0%22"
 
 def setMenuLabel(widget, label):
     widget.set_label(label)
