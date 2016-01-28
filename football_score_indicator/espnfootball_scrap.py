@@ -12,8 +12,8 @@ getQuery = lambda matchId: "http://query.yahooapis.com/v1/public/" + \
             "%26langId%3D0%26snap%3D0%22"
 
 def get_match_goaldata(matchId):
-    queryXMLParsedResults(getQuery(matchId))
-
+    lst = queryXMLParsedResults(getQuery(matchId))
+    return lst
 def get_matches_summary():
     """
     returns a dictionary of match-items with league name as key
@@ -88,6 +88,7 @@ def get_matches_summary():
     return dictOfLeagues
 
 def queryXMLParsedResults(query):
+    print (query)
     summary = (requests.get(query, timeout=5))
     data = summary.content
     xmldoc = minidom.parseString (data)
@@ -96,8 +97,11 @@ def queryXMLParsedResults(query):
     gameInfo = xmldoc.getElementsByTagName("gameInfo")
     lst = []
     shots = xmldoc.getElementsByTagName("shots")
+
     for play in shots[0].childNodes:
         for data in play.childNodes:
             if data.nodeName == 'result':
+                
                 lst.append(data.childNodes[0].nodeValue)
+    print (lst)
     return lst

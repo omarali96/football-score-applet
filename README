@@ -1,11 +1,43 @@
 
 =======================================================
-WORK IN PROGRESS
-=======================================================
-
 Football Score Indicator
+=======================================================
+Displays live scores from ESPNFC website in your indicator panel
 
-Run scores_indicator_main.py to execute
+
+Working
+==================
+Uses the unofficial JSON from ESPN Website to get the summary and fetcehes goal details (only for live matches ) from yahoo-api calls that website uses to populate itself
+
+Requirements
+==================
+Ubuntu (Unity) 14.04 and above should work out of box.
+
+
+Features
+=========
+* Displays live score and status of the match in the panel
+* Set favourite match as indicator
+* Live matches have football icon as image 
+* Goals section in submenu is only loaded for live matches
+* Matches are categorised according to the leauges as per on the website
+
+
+Usage
+===================
+
+From terminal run::
+
+ footballscores_indicator
+
+To run indicator in background ::
+
+ nohup footballscores_indicator &
+
+
+
+:Homepage: `Github Page <https://github.com/rawcoder/cricket-score-applet>`_.
+
 
 
 

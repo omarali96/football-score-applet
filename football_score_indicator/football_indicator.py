@@ -70,6 +70,9 @@ class FootballIndicator:
     def updateDataAfterInterval(self):
         while True:
             start = time.time()
+
+            # please explain why locks are required, there are no cuncuurent threads
+
             self.dataLock.acquire()
             self.updateLabels()
             self.setSubMenuData()
@@ -87,31 +90,60 @@ class FootballIndicator:
         leauges = get_matches_summary()
         if leauges is None:
             return
-
+        print " ****************************************************************\n\n"
+            
         currentCount = 0
         previousLength = len(self.menu) - 3
+        #print "=====================================>    ",
+        #print previousLength
+        #print "=====================================>    ",
+        #print currentCount
         for leauge,matches in leauges.iteritems():
             # TODO: use a creator function for creating Gtk objects
-            newLeaugeItem = Gtk.MenuItem(leauge)
-            newLeaugeItem.set_sensitive(False)
+            #print "----> " + leauge
             if currentCount >= previousLength :
+                newLeaugeItem = Gtk.ImageMenuItem(leauge)
+                newLeaugeItem.set_sensitive(False)
+                if not settings['hide_leauges']:
+                    GObject.idle_add(newLeaugeItem.show)
+                else:
+                    GObject.idle_add(newLeaugeItem.hide)
+                
                 GObject.idle_add(self.insertMenuItem,newLeaugeItem,currentCount)
                 self.matchMenu.append(leauge)
             else:
                 # %% we're using the old menuitem
                 if self.menu.get_children()[currentCount].get_submenu():
                     # %% why r u doing dis?
-                    GObject.idle_add(self.removeMenuItem,self.menu.get_children()[currentCount])
+                    # %% I am doing this since I got no way of removing the submenu from MenuItem, it orderchanges and the matchitem having submenu is changed
+                    newLeaugeItem = Gtk.ImageMenuItem(leauge)
+                    newLeaugeItem.set_sensitive(False)
+                    if not settings['hide_leauges']:
+                        GObject.idle_add(newLeaugeItem.show)
+                    else:
+                        GObject.idle_add(newLeaugeItem.hide)
+                               
+                    GObject.idle_add(self.menu.remove,self.menu.get_children()[currentCount])
                     GObject.idle_add(self.insertMenuItem,newLeaugeItem,currentCount)
                 else:
                     GObject.idle_add(setMenuLabel,self.menu.get_children()[currentCount],leauge)
-                self.matchMenu[currentCount] = leauge
-            if not settings['hide_leauges']:
-                GObject.idle_add(newLeaugeItem.show)
-            else:
-                GObject.idle_add(newLeaugeItem.hide)
+                    if not settings['hide_leauges']:
+                        GObject.idle_add(self.menu.get_children()[currentCount].show)
+                    else:
+                        GObject.idle_add(self.menu.get_children()[currentCount].hide)
+                
+                    
+            self.matchMenu[currentCount] = leauge
+
+
             currentCount += 1
             for matchInfo in matches.values():
+                #print "=====================================>    ",
+                #print previousLength
+                #print "=====================================>    ",
+                #print currentCount
+                #print "---------------------------->    " , matchInfo['score_summary']
+
                 if self.indicatorLabelId is None:
                     self.indicatorLabelId = matchInfo['id']
                 if self.indicatorLabelId == matchInfo['id']:
@@ -122,11 +154,14 @@ class FootballIndicator:
 
                 if previousLength <= currentCount:
                     matchItem = self.createMatchItem(matchInfo)
+                    print "in here since previous length is less than cuncurrent count"
+                    print "\ncreating matchitem for " + matchInfo['score_summary']
                     if ":" in matchInfo['status']:
                         GObject.idle_add(matchItem['gtkSummary'].set_label,matchInfo['score_summary'] + " Starts at " + matchInfo['status'])
                     else:
                         GObject.idle_add(matchItem['gtkSummary'].set_label,matchInfo['score_summary'] + "\n " + matchInfo['status'])
                     self.matchMenu.append(matchItem)
+                    print str(previousLength) + "----" + str(currentCount)
                     GObject.idle_add(self.insertMenuItem,matchItem['gtkSummary'],currentCount)
                     GObject.idle_add(matchItem['gtkSummary'].show)
                 else:
@@ -238,6 +273,7 @@ class FootballIndicator:
 
     def updateSubMenuLabels(self,matchId,widget):
         goals = get_match_goaldata(matchId)
+        print goals
         if not goals:
             #print "goals are not available"
             GObject.idle_add(widget.set_label,"No Goals Yet...")
