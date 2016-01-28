@@ -123,9 +123,9 @@ class FootballIndicator:
                 if previousLength <= currentCount:
                     matchItem = self.createMatchItem(matchInfo)
                     if ":" in matchInfo['status']:
-                        GObject.idle_add(setMenuLabel,matchItem['gtkSummary'],matchInfo['score_summary'] + " Starts at " + matchInfo['status'])
+                        GObject.idle_add(matchItem['gtkSummary'].set_label,matchInfo['score_summary'] + " Starts at " + matchInfo['status'])
                     else:
-                        GObject.idle_add(setMenuLabel,matchItem['gtkSummary'],matchInfo['score_summary'] + "\n " + matchInfo['status'])
+                        GObject.idle_add(matchItem['gtkSummary'].set_label,matchInfo['score_summary'] + "\n " + matchInfo['status'])
                     self.matchMenu.append(matchItem)
                     GObject.idle_add(self.insertMenuItem,matchItem['gtkSummary'],currentCount)
                     GObject.idle_add(matchItem['gtkSummary'].show)
@@ -137,9 +137,9 @@ class FootballIndicator:
                         widget.set_sensitive(True)
                         matchItem = self.createMatchItem(matchInfo,widget)
                         if ":" in matchInfo['status']:
-                            GObject.idle_add(setMenuLabel,matchItem['gtkSummary'],matchInfo['score_summary'] + " Starts at " + matchInfo['status'])
+                            GObject.idle_add(matchItem['gtkSummary'].set_label,matchInfo['score_summary'] + " Starts at " + matchInfo['status'])
                         else:
-                            GObject.idle_add(setMenuLabel,matchItem['gtkSummary'],matchInfo['score_summary'] + "\n " + matchInfo['status'])
+                            GObject.idle_add(matchItem['gtkSummary'].set_label,matchInfo['score_summary'] + "\n " + matchInfo['status'])
                         self.matchMenu[currentCount] = matchItem
 
                 if settings['live_matches'] and 'LIVE' in self.matchMenu[currentCount]['status']:
@@ -152,6 +152,8 @@ class FootballIndicator:
 
         """
         check this pattter
+
+        Actually this is what I told you to do because I am not able to figure this out
         """
         while currentCount < len(self.menu) - 3:
             print "in while loop"
@@ -223,9 +225,9 @@ class FootballIndicator:
             else:
                 GObject.idle_add(matchItem['gtkSummary'].set_always_show_image,False)
 
-        GObject.idle_add(setMenuLabel,matchItem['gtkSubMenuScoreLabel'],matchInfo['score_summary'] )
-        GObject.idle_add(setMenuLabel,matchItem['gtkStatus'],matchInfo['status'])
-        GObject.idle_add(setMenuLabel,matchItem['gtkSetAslabel'],"Set as Label")
+        GObject.idle_add(matchItem['gtkSubMenuScoreLabel'].set_label,matchInfo['score_summary'] )
+        GObject.idle_add(matchItem['gtkStatus'].set_label,matchInfo['status'])
+        GObject.idle_add(matchItem['gtkSetAslabel'].set_label,"Set as Label")
         matchItem['gtkStatus'].set_sensitive(False)
 
         matchItem['id'] = matchInfo['id']
@@ -252,6 +254,7 @@ class FootballIndicator:
                 thread = threading.Thread(target=self.updateSubMenuLabels,args=(i['id'], i['gtkGoalData']))
                 thread.start()
                 # TODO: join?
+                # Well, convice me to use the join
 
 def run():
     myIndicator = FootballIndicator()
