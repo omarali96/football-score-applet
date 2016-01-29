@@ -2,7 +2,7 @@
 =======================================================
 Football Score Indicator
 =======================================================
-Displays live scores from [ESPNFC](http://espnfc.us) website in your indicator panel
+Displays live scores from `ESPNFC <https://espnfc.us>`_ website in your indicator panel
 
 
 Working
@@ -35,8 +35,24 @@ To run indicator in background ::
  nohup footballscores_indicator &
 
 
+Screenshots
+===================
+Ubuntu (Unity)
+
+.. image:: screenshots/indicator.png  
+.. image:: screenshots/menu.png        
+.. image:: screenshots/menu-live.png  
+.. image:: screenshots/preferences-showall.png  
+.. image:: screenshots/preferences-showlive.png  
+.. image:: screenshots/preferences-showlive-hideleauges.png 
+.. image:: screenshots/preferences-showlive-showleauges.png 
+.. image:: screenshots/preferences-showall-hideleauges.png  
+.. image:: screenshots/submenu-goals.png
 
 :Homepage: `Github Page <https://github.com/rawcoder/cricket-score-applet>`_.
+ 
+  
+
 
 
 
