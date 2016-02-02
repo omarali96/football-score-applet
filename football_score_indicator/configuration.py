@@ -1,4 +1,6 @@
 import ConfigParser
+from os import path
+from os.path import expanduser
 
 class Configurations:
 	def __init__(self):
@@ -7,7 +9,10 @@ class Configurations:
 
 
 	def readConfigurations(self):
-		self.config.read("settings.cfg")
+		home = expanduser('~')
+		self.config.read(path.join(home,"settings.cfg"))
+		print "--------------------------"
+		print (path.join(home,"settings.cfg"))
 		preferences = {}
 
 		if not self.config.has_section("preferences_user"):
@@ -22,7 +27,8 @@ class Configurations:
 
 	def writeConfigurations(self,preferences = None):
 
-		self.config.read("settings.cfg")
+		home = expanduser('~')
+		self.config.read(path.join(home,"settings.cfg"))
 
 		if not self.config.has_section("preferences_user"):
 
@@ -37,5 +43,5 @@ class Configurations:
 			self.config.set('preferences_user','hide_leauges',preferences['hide_leauges'])
 
 
-		with open("settings.cfg",'wb+') as configfile:
+		with open(path.join(home,"settings.cfg"),'wb+') as configfile:
 			self.config.write(configfile)

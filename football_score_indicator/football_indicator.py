@@ -13,7 +13,7 @@ import webbrowser
 from espnfootball_scrap import get_matches_summary, get_match_goaldata
 from Preferences import PreferencesWindow
 
-ICON = path.abspath(path.dirname(__file__))+"/football.png"
+ICON = "football.png"
 VERSION_STR="0.1"
 #time ot between each fetch
 REFRESH_INTERVAL = 10

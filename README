@@ -23,6 +23,13 @@ Features
 * Matches are categorised according to the leauges as per on the website
 
 
+Install (PyPI)
+--------------
+::
+
+ sudo pip install -i https://pypi.python.org/pypi football_score_indicator
+
+
 Usage
 ===================
 
@@ -49,11 +56,13 @@ Ubuntu (Unity)
 .. image:: screenshots/preferences-showall-hideleauges.png  
 .. image:: screenshots/submenu-goals.png
 
+
 :Homepage: `Github Page <https://github.com/rawcoder/cricket-score-applet>`_.
  
-  
 
 
+License
+===================
+Licenced under GPL v3. See the LICENSE file
 
-
-
+.. image:: https://www.gnu.org/graphics/gplv3-127x51.png
