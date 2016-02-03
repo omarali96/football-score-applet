@@ -9,3 +9,4 @@ football_score_indicator/__init__.py
 football_score_indicator/configuration.py
 football_score_indicator/espnfootball_scrap.py
 football_score_indicator/football_indicator.py
+icons/football.png

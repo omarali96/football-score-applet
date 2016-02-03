@@ -14,7 +14,7 @@ if (sys.version_info[0]*10 + sys.version_info[1]) < 26:
 
 setup(
 	name             = "football_score_indicator",
-	version          = "4.1",
+	version          = "4.2",
 	author           = "Nishant Kukreja, Abhishek",
 	author_email     = "kukreja34@gmail.com",
         maintainer       = "Abhishek",
@@ -25,7 +25,7 @@ setup(
 	url              = "https://github.com/rawcoder/football-score-applet",
 	packages         = ["football_score_indicator"],
 	data_files       = [(home, glob.glob("settings.cfg")),
-	                    (sys.prefix + "/share/icons/", glob.glob("football_score_indicator/icons/*")),
+	                    (sys.prefix + "/share/icons/hicolor/24x24/apps", glob.glob("icons/*")),
 	                    (sys.prefix + "/share/applications", ["footballscores_indicator.desktop"])],
 	scripts          = ["footballscores_indicator"],
 	long_description = open("README").read(),
@@ -43,3 +43,4 @@ setup(
             'Topic :: Internet'
           ]
         )
+print sys.prefix

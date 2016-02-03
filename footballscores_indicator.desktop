@@ -6,7 +6,7 @@ GenericName=Indicator-Applet
 Comment=Displays live football scores from ESPN website in your indicator panel
 TryExec=footballscores_indicator
 Exec=footballscores_indicator
-Icon=footballscores_indicator
+Icon=football
 Terminal=false
-Categories=Network;GTK;
-#X-GNOME-Autostart-enabled=true
+Categories=Network;Gtk;
+
