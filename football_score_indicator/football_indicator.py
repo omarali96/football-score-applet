@@ -14,7 +14,7 @@ from espnfootball_scrap import get_matches_summary, get_match_goaldata
 from Preferences import PreferencesWindow
 
 ICON = "football"
-VERSION_STR="4.5.1"
+VERSION_STR="4.5.2"
 #time ot between each fetch
 REFRESH_INTERVAL = 10
 
@@ -290,7 +290,7 @@ class FootballIndicator:
             GObject.idle_add(matchItem['gtkSummary'].set_label,matchInfo['score_summary'] + " " + matchInfo['status'])
             if 'LIVE' in matchInfo['status']:
                 image = Gtk.Image()
-                image.set_from_file(ICON)
+                image.set_from_icon_name("football",1)
                 GObject.idle_add(matchItem['gtkSummary'].set_image,image)
                 GObject.idle_add(matchItem['gtkSummary'].set_always_show_image,True)
             else:
