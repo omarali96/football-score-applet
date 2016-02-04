@@ -3,6 +3,7 @@
 from distutils.core import setup
 import sys
 import glob
+import os
 from os.path import expanduser
 home = expanduser("~")
 
@@ -14,18 +15,17 @@ if (sys.version_info[0]*10 + sys.version_info[1]) < 26:
 
 setup(
 	name             = "football_score_indicator",
-	version          = "4.2.2",
+	version          = "4.5.1",
 	author           = "Nishant Kukreja, Abhishek",
 	author_email     = "kukreja34@gmail.com",
-        maintainer       = "Abhishek",
+        maintainer       = "Nishant Kukreja",
         maintainer_email = "rawcoder@openmailbox.org",
 	description      = "An indicator to show live football scores in panel",
 	license          = "GPLv3",
 	keywords         = "Cricket Scores Live Indicator Applet AppIndicator Unity GTK",
 	url              = "https://github.com/rawcoder/football-score-applet",
 	packages         = ["football_score_indicator"],
-	data_files       = [(home, glob.glob("settings.cfg")),
-	                    (sys.prefix + "/share/icons/hicolor/24x24/apps", glob.glob("icons/*")),
+	data_files       = [(sys.prefix + "/share/icons/hicolor/24x24/apps", glob.glob("icons/*")),
 	                    (sys.prefix + "/share/applications", ["footballscores_indicator.desktop"])],
 	scripts          = ["footballscores_indicator"],
 	long_description = open("README").read(),
@@ -43,4 +43,5 @@ setup(
             'Topic :: Internet'
           ]
         )
+#os.chmod(home +"/settings.cfg",0o777)
 print sys.prefix
