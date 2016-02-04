@@ -14,11 +14,12 @@ from espnfootball_scrap import get_matches_summary, get_match_goaldata
 from Preferences import PreferencesWindow
 
 ICON = "football"
-VERSION_STR="0.1"
+VERSION_STR="4.5.1"
 #time ot between each fetch
 REFRESH_INTERVAL = 10
 
 class FootballIndicator:
+    
     def __init__(self):
         self.config = Configurations()
         self.indicator = appindicator.Indicator.new("football-score-indicator",
@@ -35,7 +36,7 @@ class FootballIndicator:
         self.indicator.set_menu(self.menu)
 
         self.matchMenu = []
-        addQuitAboutPreferences(self.menu)
+        self.addQuitAboutPreferences(self.menu)
 
         self.dataLock = threading.Semaphore()
 
@@ -44,8 +45,42 @@ class FootballIndicator:
         thread = threading.Thread(target = self.updateDataAfterInterval)
         #print thread.name
         thread.daemon = True
+        
+        #read previous configurations initially
+        print "READING INITIAL SETTINGS"
+        self.settingsChanged()
+        print "READ INITIAL SETTINGS"
+
+
+
+
         thread.start()
         Gtk.main()
+
+    
+    def settingsChanged(self):
+        print "CALLBACK: SETTINGS CHANGED"
+        self.configurations = self.config.readConfigurations()
+        self.changed = True
+
+
+    def addQuitAboutPreferences(self,menu):
+        preferences_item = Gtk.MenuItem('Preferences')
+        preferences_item.connect("activate", preferences,self.settingsChanged)
+        preferences_item.show()
+
+        about_item = Gtk.MenuItem("About")
+        about_item.connect("activate", about)
+        about_item.show()
+
+        quit_item = Gtk.MenuItem("Quit")
+        quit_item.connect("activate", quit)
+        quit_item.show()
+
+        menu.append(preferences_item)
+        menu.append(about_item)
+        menu.append(quit_item)
+
 
     def setIndicatorLabel(self,label):
         self.indicator.set_label(label,"Football Score Indicator")
@@ -84,13 +119,14 @@ class FootballIndicator:
 
     def updateLabels(self):
         # TODO: use caching
-        settings = self.config.readConfigurations()
+        settings = self.configurations
+        #settings = self.config.readConfigurations()
         #print settings
 
         leauges = get_matches_summary()
         if leauges is None:
             return
-        print " ****************************************************************\n\n"
+        #print " ****************************************************************\n\n"
             
         currentCount = 0
         previousLength = len(self.menu) - 3
@@ -154,14 +190,14 @@ class FootballIndicator:
 
                 if previousLength <= currentCount:
                     matchItem = self.createMatchItem(matchInfo)
-                    print "in here since previous length is less than cuncurrent count"
-                    print "\ncreating matchitem for " + matchInfo['score_summary']
+                    #print "in here since previous length is less than cuncurrent count"
+                    #print "\ncreating matchitem for " + matchInfo['score_summary']
                     if ":" in matchInfo['status']:
                         GObject.idle_add(matchItem['gtkSummary'].set_label,matchInfo['score_summary'] + " Starts at " + matchInfo['status'])
                     else:
                         GObject.idle_add(matchItem['gtkSummary'].set_label,matchInfo['score_summary'] + "\n " + matchInfo['status'])
                     self.matchMenu.append(matchItem)
-                    print str(previousLength) + "----" + str(currentCount)
+                    #print str(previousLength) + "----" + str(currentCount)
                     GObject.idle_add(self.insertMenuItem,matchItem['gtkSummary'],currentCount)
                     GObject.idle_add(matchItem['gtkSummary'].show)
                 else:
@@ -191,10 +227,10 @@ class FootballIndicator:
         Actually this is what I told you to do because I am not able to figure this out
         """
         while currentCount < len(self.menu) - 3:
-            print "in while loop"
-            print "currentCount ----------------------------------------------> ", currentCount
-            print "sen(self.menu) --------------------------------------------> ",len(self.menu)
-            print "match menu length -----------------------------------------> ", len(self.matchMenu)
+            #print "in while loop"
+            #print "currentCount ----------------------------------------------> ", currentCount
+            #print "sen(self.menu) --------------------------------------------> ",len(self.menu)
+            #print "match menu length -----------------------------------------> ", len(self.matchMenu)
             GObject.idle_add(self.removeMenuItem, self.menu.get_children()[currentCount + 1])
             #if type(self.matchMenu[-1]) is dict:
             #  GObject.idle_add(self.removeMenuItem, self.menu.get_children()[-4])
@@ -273,7 +309,7 @@ class FootballIndicator:
 
     def updateSubMenuLabels(self,matchId,widget):
         goals = get_match_goaldata(matchId)
-        print goals
+        # goals
         if not goals:
             #print "goals are not available"
             GObject.idle_add(widget.set_label,"No Goals Yet...")
@@ -304,18 +340,22 @@ if __name__ == "__main__":
 def setMenuLabel(widget, label):
     widget.set_label(label)
 
-def preferences(widget):
+def preferences(widget,function):
     window = PreferencesWindow()
-    window.display()
+    window.display(function)
 
 def about(widget):
     dialog = Gtk.AboutDialog.new()
     dialog.set_transient_for(widget.get_parent().get_parent())
 
     dialog.set_program_name("Football Score Indicator")
-    dialog.set_authors(["Nishant Kukreja", "Abhishek"])
+    dialog.add_credit_section("Authors:", ['Nishant Kukreja (github.com/rubyace71697)', 'Abhishek (github.com/rawcoder)'])
+
     dialog.set_license_type(Gtk.License.GPL_3_0)
     dialog.set_version(VERSION_STR)
+    dialog.set_website("https://github.com/rawcoder/football-score-applet")
+    dialog.set_website_label("Github page")
+    dialog.set_logo_icon_name("football")
 
     dialog.run()
     dialog.destroy()
@@ -323,23 +363,6 @@ def about(widget):
 def quit(widget):
     print "*** quit clicked ***"
     Gtk.main_quit()
-
-def addQuitAboutPreferences(menu):
-    preferences_item = Gtk.MenuItem('Preferences')
-    preferences_item.connect("activate", preferences)
-    preferences_item.show()
-
-    about_item = Gtk.MenuItem("About")
-    about_item.connect("activate", about)
-    about_item.show()
-
-    quit_item = Gtk.MenuItem("Quit")
-    quit_item.connect("activate", quit)
-    quit_item.show()
-
-    menu.append(preferences_item)
-    menu.append(about_item)
-    menu.append(quit_item)
 
 
 # vim: ts=2

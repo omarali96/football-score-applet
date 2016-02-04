@@ -6,12 +6,14 @@ class Configurations:
 	def __init__(self):
 		print "Configurations initialised"
 		self.config = ConfigParser.RawConfigParser()
+		
 
 
 	def readConfigurations(self):
 		home = expanduser('~')
-		self.config.read(path.join(home,"settings.cfg"))
-		print "--------------------------"
+		with open(home+"/settings.cfg", 'a'):
+			self.config.read(path.join(home,"settings.cfg"))
+		#print "--------------------------"
 		print (path.join(home,"settings.cfg"))
 		preferences = {}
 

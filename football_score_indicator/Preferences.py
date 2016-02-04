@@ -1,11 +1,16 @@
-from gi.repository import Gtk
+from gi.repository import Gtk,Gdk
 from configuration import Configurations
+#import gtk.gdk
 
 class PreferencesWindow(Gtk.Window):
 
     def __init__(self):
+
+
         self.config = Configurations().readConfigurations()
         Gtk.Window.__init__(self, title="Preferencees")
+        #self.set_icon(gdk.new_from_image(sys.prefix + '/share/icons/hicolor/24x24/apps/football.png'))
+       
         self.set_border_width(10)
         hbox = Gtk.Box(spacing=6)
         self.add(hbox)
@@ -43,9 +48,10 @@ class PreferencesWindow(Gtk.Window):
         self.config['hide_leauges'] = self.button3.get_active()
 
         Configurations().writeConfigurations(self.config)
+        self.callback()
 
-    def display(self):
-
+    def display(self,func):
+        self.callback = func
         self.show_all()
 
 
