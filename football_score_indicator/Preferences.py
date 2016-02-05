@@ -1,6 +1,7 @@
 from gi.repository import Gtk,Gdk
 from configuration import Configurations
 #import gtk.gdk
+import sys
 
 class PreferencesWindow(Gtk.Window):
 
@@ -10,7 +11,7 @@ class PreferencesWindow(Gtk.Window):
         self.config = Configurations().readConfigurations()
         Gtk.Window.__init__(self, title="Preferencees")
         #self.set_icon(gdk.new_from_image(sys.prefix + '/share/icons/hicolor/24x24/apps/football.png'))
-       
+        self.set_icon_from_file(sys.prefix + '/share/icons/hicolor/24x24/apps/football.png')
         self.set_border_width(10)
         hbox = Gtk.Box(spacing=6)
         self.add(hbox)
