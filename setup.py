@@ -15,7 +15,7 @@ if (sys.version_info[0]*10 + sys.version_info[1]) < 26:
 
 setup(
 	name             = "football_score_indicator",
-	version          = "4.5.2",
+	version          = "4.5.3",
 	author           = "Nishant Kukreja, Abhishek",
 	author_email     = "kukreja34@gmail.com",
         maintainer       = "Nishant Kukreja",
