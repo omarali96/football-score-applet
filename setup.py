@@ -25,7 +25,7 @@ setup(
 	keywords         = "Cricket Scores Live Indicator Applet AppIndicator Unity GTK",
 	url              = "https://github.com/rawcoder/football-score-applet",
 	packages         = ["football_score_indicator"],
-	data_files       = [(sys.prefix + "/share/icons/hicolor/24x24/apps", glob.glob("icons/*")),
+	data_files       = [(sys.prefix + "/share/pixmaps", glob.glob("icons/*")),
 	                    (sys.prefix + "/share/applications", ["footballscores_indicator.desktop"])],
 	scripts          = ["footballscores_indicator"],
 	long_description = open("README").read(),

@@ -9,6 +9,7 @@ import threading
 import time
 import signal
 import webbrowser
+import sys
 
 from espnfootball_scrap import get_matches_summary, get_match_goaldata
 from Preferences import PreferencesWindow
@@ -355,8 +356,9 @@ def about(widget):
     dialog.set_version(VERSION_STR)
     dialog.set_website("https://github.com/rawcoder/football-score-applet")
     dialog.set_website_label("Github page")
-    dialog.set_logo_icon_name("football")
-
+    #dialog.set_logo_icon_name('football.png')
+    pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(sys.prefix + "/share/pixmaps/football.png", 50, 50)
+    dialog.set_logo(pixbuf)
     dialog.run()
     dialog.destroy()
 
