@@ -59,7 +59,9 @@ Ubuntu (Unity)
 
 :Homepage: `Github Page <https://github.com/rawcoder/cricket-score-applet>`_.
  
-
+Issues
+============
+* The app crashes with segmentation fault (double free corruption), please restart the application
 
 License
 ===================
