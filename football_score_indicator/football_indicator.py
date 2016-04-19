@@ -15,7 +15,7 @@ from espnfootball_scrap import get_matches_summary, get_match_goaldata
 from Preferences import PreferencesWindow
 
 ICON = "football"
-VERSION_STR="4.5.2"
+VERSION_STR="4.5.9.5"
 #time ot between each fetch
 REFRESH_INTERVAL = 10
 
