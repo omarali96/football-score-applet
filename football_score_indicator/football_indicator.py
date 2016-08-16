@@ -14,6 +14,7 @@ import sys
 from espnfootball_scrap import get_matches_summary, get_match_goaldata
 from Preferences import PreferencesWindow
 
+
 ICON = "football"
 VERSION_STR="4.5.9.5"
 #time ot between each fetch
@@ -32,6 +33,7 @@ class FootballIndicator:
 
         self.indicatorLabelId = None
         self.indicator.set_label("No Live Matches","")
+        self.window = PreferencesWindow()
 
         self.menu = Gtk.Menu().new()
         self.indicator.set_menu(self.menu)
@@ -66,20 +68,27 @@ class FootballIndicator:
 
 
     def addQuitAboutPreferences(self,menu):
+    	gtkSeperator1 = Gtk.SeparatorMenuItem()
+    	gtkSeperator1.show()
         preferences_item = Gtk.MenuItem('Preferences')
-        preferences_item.connect("activate", preferences,self.settingsChanged)
+        preferences_item.connect("activate", preferences,self.settingsChanged,self.window)
         preferences_item.show()
 
         about_item = Gtk.MenuItem("About")
         about_item.connect("activate", about)
         about_item.show()
 
+       	gtkSeperator2 = Gtk.SeparatorMenuItem()
+       	gtkSeperator2.show()
+
         quit_item = Gtk.MenuItem("Quit")
         quit_item.connect("activate", quit)
         quit_item.show()
 
+        menu.append(gtkSeperator1)
         menu.append(preferences_item)
         menu.append(about_item)
+        menu.append(gtkSeperator2)
         menu.append(quit_item)
 
 
@@ -130,7 +139,7 @@ class FootballIndicator:
         #print " ****************************************************************\n\n"
             
         currentCount = 0
-        previousLength = len(self.menu) - 3
+        previousLength = len(self.menu) - 5
         #print "=====================================>    ",
         #print previousLength
         #print "=====================================>    ",
@@ -139,7 +148,7 @@ class FootballIndicator:
             # TODO: use a creator function for creating Gtk objects
             #print "----> " + leauge
             if currentCount >= previousLength :
-                newLeaugeItem = Gtk.ImageMenuItem(leauge)
+                newLeaugeItem = Gtk.ImageMenuItem(leauge.upper())
                 newLeaugeItem.set_sensitive(False)
                 if not settings['hide_leauges']:
                     GObject.idle_add(newLeaugeItem.show)
@@ -153,7 +162,7 @@ class FootballIndicator:
                 if self.menu.get_children()[currentCount].get_submenu():
                     # %% why r u doing dis?
                     # %% I am doing this since I got no way of removing the submenu from MenuItem, it orderchanges and the matchitem having submenu is changed
-                    newLeaugeItem = Gtk.ImageMenuItem(leauge)
+                    newLeaugeItem = Gtk.ImageMenuItem(leauge.upper())
                     newLeaugeItem.set_sensitive(False)
                     if not settings['hide_leauges']:
                         GObject.idle_add(newLeaugeItem.show)
@@ -163,7 +172,7 @@ class FootballIndicator:
                     GObject.idle_add(self.menu.remove,self.menu.get_children()[currentCount])
                     GObject.idle_add(self.insertMenuItem,newLeaugeItem,currentCount)
                 else:
-                    GObject.idle_add(setMenuLabel,self.menu.get_children()[currentCount],leauge)
+                    GObject.idle_add(setMenuLabel,self.menu.get_children()[currentCount],leauge.upper())
                     if not settings['hide_leauges']:
                         GObject.idle_add(self.menu.get_children()[currentCount].show)
                     else:
@@ -227,7 +236,7 @@ class FootballIndicator:
 
         Actually this is what I told you to do because I am not able to figure this out
         """
-        while currentCount < len(self.menu) - 3:
+        while currentCount < len(self.menu) - 5:
             #print "in while loop"
             #print "currentCount ----------------------------------------------> ", currentCount
             #print "sen(self.menu) --------------------------------------------> ",len(self.menu)
@@ -297,7 +306,7 @@ class FootballIndicator:
             else:
                 GObject.idle_add(matchItem['gtkSummary'].set_always_show_image,False)
 
-        GObject.idle_add(matchItem['gtkSubMenuScoreLabel'].set_label,matchInfo['score_summary'] )
+        GObject.idle_add(matchItem['gtkSubMenuScoreLabel'].set_label,matchInfo['score_summary'].upper() )
         GObject.idle_add(matchItem['gtkStatus'].set_label,matchInfo['status'])
         GObject.idle_add(matchItem['gtkSetAslabel'].set_label,"Set as Label")
         matchItem['gtkStatus'].set_sensitive(False)
@@ -341,8 +350,9 @@ if __name__ == "__main__":
 def setMenuLabel(widget, label):
     widget.set_label(label)
 
-def preferences(widget,function):
-    window = PreferencesWindow()
+def preferences(widget,function,window):
+    
+    print "*******Preferences Clicked********"
     window.display(function)
 
 def about(widget):
