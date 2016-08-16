@@ -15,7 +15,7 @@ if (sys.version_info[0]*10 + sys.version_info[1]) < 26:
 
 setup(
 	name             = "football_score_indicator",
-	version          = "4.5.9.5",
+	version          = "4.7",
 	author           = "Nishant Kukreja, Abhishek",
 	author_email     = "kukreja34@gmail.com",
         maintainer       = "Nishant Kukreja",
@@ -25,6 +25,7 @@ setup(
 	keywords         = "Cricket Scores Live Indicator Applet AppIndicator Unity GTK",
 	url              = "https://github.com/rawcoder/football-score-applet",
 	packages         = ["football_score_indicator"],
+    package_data     = {'football_score_indicator': ['./*.glade']},   
 	data_files       = [(sys.prefix + "/share/pixmaps", glob.glob("icons/*")),
 	                    (sys.prefix + "/share/applications", ["footballscores_indicator.desktop"])],
 	scripts          = ["footballscores_indicator"],
